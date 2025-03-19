@@ -1,38 +1,69 @@
-/* Reset básico para mejorar compatibilidad */
+/* 
+====================================================
+                ESTILOS GENERALES
+====================================================
+*/
+
+/* Reset básico para mejorar la compatibilidad en distintos navegadores */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Fuente global y colores de fondo y texto */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     color: #333;
 }
 
-/* ---------------- NAVBAR ---------------- */
+/* 
+====================================================
+                ESTILOS DE LA NAVBAR
+====================================================
+*/
+
+/* Espaciado inferior para separar la barra de navegación del contenido */
 .navbar {
     margin-bottom: 20px;
 }
 
-/* ---------------- CONTENEDOR PRINCIPAL ---------------- */
+/* 
+====================================================
+                CONTENEDOR PRINCIPAL
+====================================================
+*/
+
+/* Define un ancho máximo para el contenido y centra la página */
 .container {
     max-width: 1200px;
     margin: auto;
     padding: 20px;
 }
 
-/* ---------------- SECCIONES ---------------- */
+/* 
+====================================================
+                SECCIONES GENERALES
+====================================================
+*/
+
+/* Oculta las secciones por defecto, las muestra con bordes suaves */
 .seccion {
-    display: none;
+    display: none; /* Se oculta inicialmente */
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ---------------- FORMULARIOS ---------------- */
+/* 
+====================================================
+                FORMULARIOS
+====================================================
+*/
+
+/* Asegura que los elementos de formulario ocupen todo el ancho disponible */
 form input,
 form select,
 form button {
@@ -40,17 +71,25 @@ form button {
     margin-bottom: 10px;
 }
 
-/* ---------------- TABLAS RESPONSIVE ---------------- */
+/* 
+====================================================
+                TABLAS RESPONSIVAS
+====================================================
+*/
+
+/* Hace que las tablas sean desplazables horizontalmente en pantallas pequeñas */
 .table-responsive {
     overflow-x: auto;
 }
 
+/* Ajusta la tabla al 100% y define un ancho mínimo */
 .table {
     width: 100%;
     min-width: 600px;
     border-collapse: collapse;
 }
 
+/* Define el diseño de las celdas de la tabla */
 .table th,
 .table td {
     padding: 10px;
@@ -58,70 +97,93 @@ form button {
     text-align: left;
 }
 
+/* Estilos para los encabezados de la tabla */
 .table th {
     background-color: #007bff;
     color: white;
 }
 
-/* ---------------- BOTONES ---------------- */
+/* 
+====================================================
+                BOTONES GENERALES
+====================================================
+*/
+
+/* Ajusta el tamaño y el diseño de los botones */
 .btn {
     padding: 8px 12px;
     font-size: 14px;
     border-radius: 5px;
 }
 
+/* Botón de advertencia (Edición) */
 .btn-warning {
     background-color: #ffcc00;
     border: none;
     color: black;
 }
 
+/* Botón de eliminación */
 .btn-danger {
     background-color: #dc3545;
     border: none;
     color: white;
 }
 
+/* Botón de acción positiva (Guardar, Aceptar, etc.) */
 .btn-success {
     background-color: #28a745;
     border: none;
     color: white;
 }
 
+/* Efecto de opacidad al pasar el mouse por encima de los botones */
 .btn:hover {
     opacity: 0.9;
 }
 
-/* ---------------- RESPONSIVE DESIGN ---------------- */
+/* 
+====================================================
+        DISEÑO RESPONSIVO PARA DISPOSITIVOS PEQUEÑOS
+====================================================
+*/
+
+/* Ajustes para pantallas menores a 768px (tablets y móviles) */
 @media (max-width: 768px) {
     .container {
         padding: 10px;
     }
 
+    /* Centra los elementos de la barra de navegación en pantallas pequeñas */
     .navbar-nav {
         text-align: center;
     }
 
+    /* Permite el desplazamiento horizontal de las tablas */
     .table-responsive {
         overflow-x: auto;
         display: block;
         width: 100%;
     }
 
+    /* Ajusta las tablas para pantallas pequeñas */
     .table {
         min-width: 100%;
     }
 
+    /* Reduce el padding de las secciones */
     .seccion {
         padding: 15px;
     }
 
+    /* Reduce el tamaño de fuente de los formularios */
     form input,
     form select,
     form button {
         font-size: 14px;
     }
 
+    /* Reduce el tamaño de fuente de los botones */
     .btn {
         font-size: 13px;
     }
