@@ -2,13 +2,14 @@
 require 'db.php';
 
 try {
+    // Seleccionamos los pagos junto con el nombre del profesor
     $stmt = $pdo->query("
-        SELECT p.id, u.nombre AS profesor_nombre, SUM(c.hora_fin - c.hora_inicio) AS horas_trabajadas, 
-               (SUM(c.hora_fin - c.hora_inicio) * 20) AS monto, p.estado 
+        SELECT p.id, u.nombre AS profesor_nombre, 
+               COALESCE(p.total_horas, 0) AS total_horas, 
+               COALESCE(p.total, 0) AS total, 
+               p.estado 
         FROM pagos p 
         JOIN usuarios u ON p.profesor_id = u.id
-        JOIN clases c ON c.profesor_id = u.id
-        GROUP BY p.id, u.nombre, p.estado
     ");
 
     $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);

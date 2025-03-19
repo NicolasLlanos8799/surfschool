@@ -42,21 +42,83 @@ function agregarProfesor() {
 
 function cargarProfesores() {
     fetch("php/listar_profesores.php")
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log("Profesores recibidos:", data); // Muestra el JSON en la consola
+
         const tabla = document.getElementById("tablaProfesores");
+        if (!tabla) {
+            console.error("Error: No se encontró la tabla de profesores en el DOM.");
+            return;
+        }
+
+        // Limpiar la tabla antes de agregar nuevos datos
         tabla.innerHTML = "";
+
         data.forEach(profesor => {
-            let fila = `<tr>
+            let fila = document.createElement("tr");
+            fila.innerHTML = `
                 <td>${profesor.id}</td>
                 <td>${profesor.nombre}</td>
                 <td>${profesor.email}</td>
-            </tr>`;
-            tabla.innerHTML += fila;
+                <td>${profesor.telefono ? profesor.telefono : 'No registrado'}</td>
+                <td>€${profesor.tarifa_hora ? profesor.tarifa_hora : 'No definido'}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editarProfesor(${profesor.id}, '${profesor.nombre}', '${profesor.email}', '${profesor.telefono}', '${profesor.tarifa_hora}')">Editar</button>
+                </td>
+            `;
+            tabla.appendChild(fila);
         });
+
+        console.log("Tabla de profesores actualizada correctamente.");
     })
     .catch(error => console.error("Error al cargar los profesores:", error));
 }
+
+
+
+
+
+function editarProfesor(id, nombre, email, telefono, tarifa) {
+    document.getElementById("profesor_id").value = id;
+    document.getElementById("editar_nombre").value = nombre;
+    document.getElementById("editar_email").value = email;
+    document.getElementById("editar_telefono").value = telefono;
+    document.getElementById("editar_tarifa").value = tarifa;
+    
+    document.getElementById("formulario-editar-profesor").style.display = "block";
+}
+
+function guardarEdicionProfesor() {
+    const id = document.getElementById("profesor_id").value;
+    const nombre = document.getElementById("editar_nombre").value;
+    const email = document.getElementById("editar_email").value;
+    const telefono = document.getElementById("editar_telefono").value;
+    const tarifa = document.getElementById("editar_tarifa").value;
+
+    fetch("php/editar_profesor.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id=${id}&nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&tarifa=${encodeURIComponent(tarifa)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Profesor actualizado correctamente");
+            document.getElementById("formulario-editar-profesor").style.display = "none";
+            cargarProfesores();
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error al actualizar el profesor:", error));
+}
+
 
 function asignarClase() {
     const profesorId = document.getElementById("profesor").value;

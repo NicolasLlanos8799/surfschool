@@ -38,8 +38,11 @@
                 <input type="text" id="nombre" class="form-control" placeholder="Nombre">
                 <input type="email" id="email" class="form-control mt-2" placeholder="Correo electrónico">
                 <input type="password" id="password" class="form-control mt-2" placeholder="Contraseña">
+                <input type="text" id="telefono" class="form-control mt-2" placeholder="Teléfono">
+                <input type="number" id="tarifa_hora" class="form-control mt-2" placeholder="Tarifa por Hora (€)">
                 <button class="btn btn-success mt-2" onclick="agregarProfesor()">Guardar</button>
             </div>
+
             <h4 class="mt-4">Lista de Profesores</h4>
             <table class="table table-striped">
                 <thead>
@@ -47,12 +50,29 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Tarifa por Hora (€)</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaProfesores">
                     <!-- Aquí se cargarán los profesores -->
                 </tbody>
             </table>
+
+
+
+            <!-- Formulario de edición de profesor -->
+            <div id="formulario-editar-profesor" style="display: none;">
+                <h4>Editar Profesor</h4>
+                <input type="hidden" id="profesor_id">
+                <input type="text" id="editar_nombre" class="form-control mt-2" placeholder="Nombre">
+                <input type="email" id="editar_email" class="form-control mt-2" placeholder="Correo electrónico">
+                <input type="text" id="editar_telefono" class="form-control mt-2" placeholder="Teléfono">
+                <input type="number" id="editar_tarifa" class="form-control mt-2" placeholder="Tarifa por Hora (€)">
+                <button class="btn btn-success mt-2" onclick="guardarEdicionProfesor()">Guardar Cambios</button>
+            </div>
+
         </div>
 
         <div id="clases" class="seccion" style="display: none;">
@@ -89,6 +109,14 @@
             <h3>Gestión de Pagos</h3>
             <h4 class="mt-4">Lista de Pagos</h4>
             <table class="table table-striped">
+                <div class="mb-3">
+                    <label for="filtroPagos" class="form-label">Filtrar por estado:</label>
+                    <select id="filtroPagos" class="form-control" onchange="cargarPagosFiltrados()">
+                        <option value="todos">Todos</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="pagado">Pagado</option>
+                    </select>
+                </div>
                 <thead>
                     <tr>
                         <th>ID</th>

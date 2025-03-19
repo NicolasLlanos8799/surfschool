@@ -5,26 +5,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = $_POST['nombre'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+    $telefono = $_POST['telefono'] ?? '';
+    $tarifa_hora = $_POST['tarifa_hora'] ?? '';
 
-    if (empty($nombre) || empty($email) || empty($password)) {
+    if (empty($nombre) || empty($email) || empty($password) || empty($telefono) || empty($tarifa_hora)) {
         echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios']);
         exit;
     }
 
-    // Verificar si el correo ya está registrado
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
-    $stmt->execute([$email]);
-    if ($stmt->fetch()) {
-        echo json_encode(['success' => false, 'message' => 'El correo ya está registrado']);
-        exit;
-    }
+    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-    // Insertar el nuevo profesor
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, 'profesor')");
-    if ($stmt->execute([$nombre, $email, $passwordHash])) {
+    $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password, telefono, tarifa_hora, rol) VALUES (?, ?, ?, ?, ?, 'profesor')");
+    if ($stmt->execute([$nombre, $email, $passwordHash, $telefono, $tarifa_hora])) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error al registrar el profesor']);
+        echo json_encode(['success' => false, 'message' => 'Error al agregar el profesor']);
     }
 }
+?>
