@@ -44,23 +44,23 @@
             </div>
 
             <h4 class="mt-4">Lista de Profesores</h4>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                        <th>Tarifa por Hora (€)</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaProfesores">
-                    <!-- Aquí se cargarán los profesores -->
-                </tbody>
-            </table>
-
-
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Tarifa por Hora (€)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaProfesores">
+                        <!-- Aquí se cargarán los profesores -->
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Formulario de edición de profesor -->
             <div id="formulario-editar-profesor" style="display: none;">
@@ -88,6 +88,7 @@
                 <input type="text" id="alumno" class="form-control mt-2" placeholder="Nombre del Alumno">
                 <button class="btn btn-success mt-2" onclick="asignarClase()">Guardar</button>
             </div>
+            <!-- Tabla de Clases -->
             <h4 class="mt-4">Lista de Clases</h4>
             <table class="table table-striped">
                 <thead>
@@ -97,12 +98,28 @@
                         <th>Fecha</th>
                         <th>Horario</th>
                         <th>Alumno</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaClases">
                     <!-- Aquí se cargarán las clases -->
                 </tbody>
             </table>
+
+            <!-- Formulario de Edición de Clase -->
+            <div id="formulario-editar-clase" style="display: none;">
+                <h4>Editar Clase</h4>
+                <input type="hidden" id="clase_id">
+                <select id="editar_profesor" class="form-control mt-2">
+                    <option value="">Seleccione un profesor</option>
+                </select>
+                <input type="date" id="editar_fecha" class="form-control mt-2">
+                <input type="time" id="editar_hora_inicio" class="form-control mt-2">
+                <input type="time" id="editar_hora_fin" class="form-control mt-2">
+                <input type="text" id="editar_alumno" class="form-control mt-2" placeholder="Nombre del Alumno">
+                <button class="btn btn-success mt-2" onclick="guardarEdicionClase()">Guardar Cambios</button>
+            </div>
+
         </div>
 
         <div id="pagos" class="seccion" style="display: none;">
