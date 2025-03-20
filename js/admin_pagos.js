@@ -4,118 +4,102 @@
 // de los pagos y permitir marcar pagos como "Pagado".
 // =========================================================
 
-// Ejecutar las funciones principales al cargar la página
 document.addEventListener("DOMContentLoaded", function () {
     cargarPagos();
 });
 
-/**
- * Función para cargar la lista de pagos desde la base de datos
- * Muestra los pagos en la tabla de la interfaz de administrador
- */
 function cargarPagos() {
     fetch("php/listar_pagos.php")
     .then(response => response.json())
     .then(data => {
-        console.log("Pagos recibidos:", data); // Verificar los datos en la consola
+        console.log("Pagos recibidos:", data);
 
-        // Obtener la tabla donde se mostrarán los pagos
-        const tabla = document.getElementById("tablaPagos");
-        tabla.innerHTML = ""; // Limpiar el contenido previo de la tabla
+        // Obtener las tablas de pagos
+        const tablaPendientes = document.getElementById("tablaPagosPendientes");
+        const tablaRealizados = document.getElementById("tablaPagosRealizados");
 
-        // Recorrer cada pago recibido desde el servidor
-        data.forEach(pago => {
-            let horas = parseInt(pago["total_horas"], 10) || 0; // Convertir a entero o asignar 0
-            let monto = parseFloat(pago["total"]) || 0.00; // Convertir a decimal o asignar 0.00
+        // Verificar que los elementos existen antes de usarlos
+        if (!tablaPendientes || !tablaRealizados) {
+            console.error("Error: No se encontraron las tablas de pagos en el DOM.");
+            return;
+        }
 
-            // Definir clases CSS para resaltar pagos pendientes y pagados
-            let estadoClase = pago["estado"] === "pendiente" ? "text-danger fw-bold" : "text-success fw-bold";
+        tablaPendientes.innerHTML = "";
+        tablaRealizados.innerHTML = "";
 
-            // Crear la fila con los datos del pago
+        // Cargar pagos pendientes
+        data.pendientes.forEach(pago => {
             let fila = `<tr>
-                <td>${pago["id"]}</td>
-                <td>${pago["profesor_nombre"]}</td>
-                <td>${horas}</td>
-                <td>€${monto.toFixed(2)}</td>
-                <td class="${estadoClase}">${pago["estado"].toUpperCase()}</td>
+                <td>${pago.profesor_nombre}</td>
+                <td>${pago.total_horas}</td>
+                <td>€${pago.total}</td>
                 <td>
-                    ${pago["estado"] === 'pendiente' 
-                        ? `<button class="btn btn-success btn-sm" onclick="actualizarEstadoPago(${pago["id"]}, 'pagado')">Marcar como Pagado</button>` 
-                        : '<span class="text-success">Pagado</span>'}
+                    <button class="btn btn-primary btn-sm" onclick="confirmarPago('${pago.profesor_nombre}', ${pago.total_horas}, ${pago.total})">
+                        Registrar Pago
+                    </button>
                 </td>
             </tr>`;
-            
-            // Agregar la fila a la tabla
-            tabla.innerHTML += fila;
+            tablaPendientes.innerHTML += fila;
+        });
+
+        // Cargar pagos realizados
+        data.realizados.forEach(pago => {
+            let fila = `<tr>
+                <td>${pago.id}</td>
+                <td>${pago.profesor_nombre}</td>
+                <td>${pago.total_horas}</td>
+                <td>€${pago.total}</td>
+                <td>${pago.estado.toUpperCase()}</td>
+            </tr>`;
+            tablaRealizados.innerHTML += fila;
         });
     })
     .catch(error => console.error("Error al cargar los pagos:", error));
 }
 
-/**
- * Función para actualizar el estado de un pago a "Pagado"
- * @param {number} idPago - ID del pago a actualizar
- * @param {string} nuevoEstado - Nuevo estado del pago (ej: 'pagado')
- */
-function actualizarEstadoPago(idPago, nuevoEstado) {
-    // Confirmación antes de cambiar el estado del pago
-    if (!confirm("¿Estás seguro de que deseas marcar este pago como 'Pagado'?")) {
-        return; // Si el usuario cancela, no se ejecuta la actualización
-    }
 
-    fetch("php/actualizar_pago.php", {
+
+
+function confirmarPago(profesorNombre, totalHoras, total) {
+    if (!confirm(`¿Confirmar el pago de €${total} para ${profesorNombre}?`)) {
+        return;
+    }
+    
+    fetch("php/generar_pagos.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `id_pago=${encodeURIComponent(idPago)}&estado=${encodeURIComponent(nuevoEstado)}`
+        body: `profesor_nombre=${encodeURIComponent(profesorNombre)}&total_horas=${totalHoras}&total=${total}`
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("Estado de pago actualizado correctamente.");
-            cargarPagos(); // Recargar la lista de pagos después de la actualización
+            alert("Pago registrado correctamente.");
+            cargarPagos();
         } else {
             alert("Error: " + data.message);
         }
     })
-    .catch(error => console.error("Error al actualizar el pago:", error));
+    .catch(error => console.error("Error al registrar el pago:", error));
 }
 
-/**
- * Función para cargar pagos filtrados por estado (Pendiente o Pagado)
- * Se ejecuta cuando el usuario selecciona un filtro en el dropdown
- */
-function cargarPagosFiltrados() {
-    let filtro = document.getElementById("filtroPagos").value; // Obtener filtro seleccionado
-
-    fetch("php/listar_pagos.php")
+function registrarPago(profesorNombre, totalHoras, total) {
+    if (!confirm(`¿Confirmar el pago de €${total} para ${profesorNombre}?`)) {
+        return;
+    }
+    
+    fetch("php/registrar_pago.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `profesor_nombre=${encodeURIComponent(profesorNombre)}&total_horas=${totalHoras}&total=${total}`
+    })
     .then(response => response.json())
     .then(data => {
-        const tabla = document.getElementById("tablaPagos");
-        tabla.innerHTML = ""; // Limpiar tabla antes de agregar datos
-
-        // Recorrer la lista de pagos y aplicar el filtro
-        data.forEach(pago => {
-            if (filtro === "todos" || pago["estado"] === filtro) {
-                let horas = parseInt(pago["total_horas"], 10) || 0;
-                let monto = parseFloat(pago["total"]) || 0.00;
-                let estadoClase = pago["estado"] === "pendiente" ? "text-danger fw-bold" : "text-success fw-bold";
-
-                let fila = `<tr>
-                    <td>${pago["id"]}</td>
-                    <td>${pago["profesor_nombre"]}</td>
-                    <td>${horas}</td>
-                    <td>€${monto.toFixed(2)}</td>
-                    <td class="${estadoClase}">${pago["estado"].toUpperCase()}</td>
-                    <td>
-                        ${pago["estado"] === 'pendiente' 
-                            ? `<button class="btn btn-success btn-sm" onclick="actualizarEstadoPago(${pago["id"]}, 'pagado')">Marcar como Pagado</button>` 
-                            : '<span class="text-success">Pagado</span>'}
-                    </td>
-                </tr>`;
-                
-                tabla.innerHTML += fila;
-            }
-        });
+        if (data.success) {
+            alert("Pago registrado correctamente.");
+            cargarPagos(); // Recargar la lista de pagos
+        } else {
+            alert("Error: " + data.message);
+        }
     })
-    .catch(error => console.error("Error al cargar los pagos:", error));
+    .catch(error => console.error("Error al registrar el pago:", error));
 }

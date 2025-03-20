@@ -224,3 +224,43 @@ function cargarListaProfesoresEdicion(profesorSeleccionado) {
     })
     .catch(error => console.error("Error al cargar los profesores en edición:", error));
 }
+
+
+window.mostrarFormularioClase = function () {
+    console.log("Función mostrarFormularioClase ejecutada");
+    const formulario = document.getElementById("formulario-clase");
+
+    if (!formulario) {
+        console.error("Error: No se encontró el formulario de clases en el DOM.");
+        return;
+    }
+
+    formulario.style.display = formulario.style.display === "none" ? "block" : "none";
+    cargarListaProfesores();
+};
+
+
+/**
+ * Carga la lista de profesores en el formulario de asignación de clases
+ */
+function cargarListaProfesores() {
+    fetch("php/listar_profesores.php")
+    .then(response => response.json())
+    .then(data => {
+        const selectProfesores = document.getElementById("profesor");
+        if (!selectProfesores) {
+            console.error("Error: No se encontró el elemento select de profesores en el DOM.");
+            return;
+        }
+
+        selectProfesores.innerHTML = '<option value="">Seleccione un profesor</option>'; // Reiniciar opciones
+
+        data.forEach(profesor => {
+            let opcion = document.createElement("option");
+            opcion.value = profesor.id;
+            opcion.textContent = profesor.nombre;
+            selectProfesores.appendChild(opcion);
+        });
+    })
+    .catch(error => console.error("Error al cargar los profesores en el formulario:", error));
+}

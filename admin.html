@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administrador</title>
-    
+
     <!-- Inclusión de Bootstrap para mejorar la apariencia y funcionalidad -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
@@ -22,8 +22,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('profesores')">Gestión de Profesores</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('clases')">Gestión de Clases</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('profesores')">Gestión de
+                            Profesores</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('clases')">Gestión de Clases</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('pagos')">Gestión de Pagos</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="php/logout.php">Cerrar Sesión</a></li>
                 </ul>
@@ -90,7 +92,7 @@
                 <input type="text" id="alumno" class="form-control mt-2" placeholder="Nombre del Alumno">
                 <button class="btn btn-success mt-2" onclick="asignarClase()">Guardar</button>
             </div>
-            
+
             <!-- Tabla de Clases -->
             <h4 class="mt-4">Lista de Clases</h4>
             <table class="table table-striped">
@@ -111,29 +113,41 @@
         <!-- Sección de Gestión de Pagos -->
         <div id="pagos" class="seccion" style="display: none;">
             <h3>Gestión de Pagos</h3>
-            <h4 class="mt-4">Lista de Pagos</h4>
-            <div class="mb-3">
-                <label for="filtroPagos" class="form-label">Filtrar por estado:</label>
-                <select id="filtroPagos" class="form-control" onchange="cargarPagosFiltrados()">
-                    <option value="todos">Todos</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="pagado">Pagado</option>
-                </select>
-            </div>
+
+            <!-- Tabla de pagos pendientes -->
+            <h4 class="mt-4">Total Estimado (Clases Programadas)</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Profesor</th>
+                        <th>Horas Programadas</th>
+                        <th>Monto Estimado (€)</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaPagosPendientes">
+                    <!-- Aquí se cargarán los pagos pendientes -->
+                </tbody>
+            </table>
+
+            <!-- Tabla de pagos realizados -->
+            <h4 class="mt-4">Pagos Generados (Clases Completadas)</h4>
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Profesor</th>
                         <th>Horas Trabajadas</th>
-                        <th>Monto a Pagar</th>
+                        <th>Monto a Pagar (€)</th>
                         <th>Estado</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody id="tablaPagos"></tbody>
+                <tbody id="tablaPagosRealizados">
+                    <!-- Aquí se cargarán los pagos realizados -->
+                </tbody>
             </table>
         </div>
+
     </div>
 
     <!-- Scripts -->
@@ -153,4 +167,5 @@
     <script src="js/admin_pagos.js"></script>
 
 </body>
+
 </html>
