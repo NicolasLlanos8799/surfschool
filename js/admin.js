@@ -178,6 +178,7 @@ function cargarClases() {
                     <td>${clase.alumno_nombre}</td>
                     <td>
                         <button class="btn btn-warning btn-sm" onclick="editarClase(${clase.id}, '${clase.profesor_id}', '${clase.fecha}', '${clase.hora_inicio}', '${clase.hora_fin}', '${clase.alumno_nombre}')">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarClase(${clase.id})">Eliminar</button>
                     </td>
                 </tr>`;
             tabla.innerHTML += fila;
@@ -373,4 +374,29 @@ window.guardarEdicionClase = function () {
         }
     })
     .catch(error => console.error("Error al editar la clase:", error));
+};
+
+// ✅ Función para eliminar una clase
+window.eliminarClase = function (id) {
+    console.log("Función eliminarClase ejecutada para ID:", id);
+
+    if (!confirm("¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.")) {
+        return;
+    }
+
+    fetch("php/eliminar_clase.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id=${id}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Clase eliminada correctamente.");
+            cargarClases(); // Recargar la lista de clases
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error al eliminar la clase:", error));
 };
