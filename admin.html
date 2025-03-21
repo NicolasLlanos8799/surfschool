@@ -108,6 +108,21 @@
                 </thead>
                 <tbody id="tablaClases"></tbody>
             </table>
+
+            <!-- Formulario de Edición de Clases -->
+            <div id="formulario-editar-clase" style="display: none;">
+                <h4>Editar Clase</h4>
+                <input type="hidden" id="clase_id">
+                <select id="editar_profesor" class="form-control">
+                    <option value="">Seleccione un profesor</option>
+                </select>
+                <input type="date" id="editar_fecha" class="form-control mt-2">
+                <input type="time" id="editar_hora_inicio" class="form-control mt-2">
+                <input type="time" id="editar_hora_fin" class="form-control mt-2">
+                <input type="text" id="editar_alumno" class="form-control mt-2" placeholder="Nombre del Alumno">
+                <button class="btn btn-success mt-2" onclick="guardarEdicionClase()">Guardar Cambios</button>
+            </div>
+
         </div>
 
         <!-- Sección de Gestión de Pagos -->
