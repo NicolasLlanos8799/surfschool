@@ -267,6 +267,7 @@ function cargarListaProfesores() {
 }
 
 // ✅ Hacer la función accesible globalmente
+// ✅ Función accesible globalmente
 window.asignarClase = function () {
     console.log("Función asignarClase ejecutada");
 
@@ -293,13 +294,15 @@ window.asignarClase = function () {
         if (data.success) {
             alert("Clase asignada correctamente.");
             document.getElementById("formulario-clase").style.display = "none"; // Ocultar formulario
-            cargarClases(); // Recargar la lista de clases
+            cargarClases();  // 🔹 Recargar lista de clases
+            cargarPagos();   // 🔹 Recargar pagos automáticamente
         } else {
             alert("Error: " + data.message);
         }
     })
     .catch(error => console.error("Error al asignar la clase:", error));
 };
+
 
 // ✅ Hacer la función accesible globalmente
 window.editarClase = function (id, profesorId, fecha, horaInicio, horaFin, alumno) {
@@ -351,13 +354,11 @@ window.guardarEdicionClase = function () {
     const horaFin = document.getElementById("editar_hora_fin").value;
     const alumno = document.getElementById("editar_alumno").value.trim();
 
-    // 🚨 Validar que todos los campos están completos
     if (!id || !profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
         alert("Todos los campos son obligatorios.");
         return;
     }
 
-    // 🔹 Enviar los datos al servidor
     fetch("php/editar_clase.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -367,8 +368,9 @@ window.guardarEdicionClase = function () {
     .then(data => {
         if (data.success) {
             alert("Clase editada correctamente.");
-            document.getElementById("formulario-editar-clase").style.display = "none"; // Ocultar formulario
-            cargarClases(); // Recargar la lista de clases
+            document.getElementById("formulario-editar-clase").style.display = "none"; 
+            cargarClases();  // Recargar lista de clases
+            cargarPagos();   // 🔹 Recargar pagos automáticamente
         } else {
             alert("Error: " + data.message);
         }
@@ -376,10 +378,9 @@ window.guardarEdicionClase = function () {
     .catch(error => console.error("Error al editar la clase:", error));
 };
 
+
 // ✅ Función para eliminar una clase
 window.eliminarClase = function (id) {
-    console.log("Función eliminarClase ejecutada para ID:", id);
-
     if (!confirm("¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.")) {
         return;
     }
@@ -393,10 +394,12 @@ window.eliminarClase = function (id) {
     .then(data => {
         if (data.success) {
             alert("Clase eliminada correctamente.");
-            cargarClases(); // Recargar la lista de clases
+            cargarClases();  // Recargar lista de clases
+            cargarPagos();   // 🔹 Recargar pagos automáticamente
         } else {
             alert("Error: " + data.message);
         }
     })
     .catch(error => console.error("Error al eliminar la clase:", error));
 };
+
