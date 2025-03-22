@@ -276,6 +276,11 @@ window.asignarClase = function () {
     const horaInicio = document.getElementById("hora_inicio").value;
     const horaFin = document.getElementById("hora_fin").value;
     const alumno = document.getElementById("alumno").value.trim();
+    const email = document.getElementById("email_alumno").value.trim();
+    const telefono = document.getElementById("telefono_alumno").value.trim();
+    const observaciones = document.getElementById("observaciones").value.trim();
+
+
 
     // 🚨 Validar que todos los campos están completos
     if (!profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
@@ -287,7 +292,7 @@ window.asignarClase = function () {
     fetch("php/agregar_clase.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}`
+        body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
     .then(response => response.json())
     .then(data => {
