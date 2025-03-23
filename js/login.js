@@ -1,5 +1,5 @@
 // =========================================================
-// Archivo: script.js
+// Archivo: login.js
 // Funcionalidad: Manejo del formulario de inicio de sesión
 // =========================================================
 
