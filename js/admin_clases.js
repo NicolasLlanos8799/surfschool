@@ -2,7 +2,8 @@
 // Funciones para la gestión de clases en el panel admin
 
 document.addEventListener("DOMContentLoaded", function () {
-    cargarClases();
+    cargarClases()
+    mostrarSeccion('clases');
 });
 
 function mostrarFormularioClase() {
@@ -184,3 +185,67 @@ function cargarListaProfesoresEdicion(profesorSeleccionado) {
     })
     .catch(error => console.error("Error al cargar los profesores en edición:", error));
 }
+
+function inicializarCalendario() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            fetch('php/listar_clases.php')
+                .then(response => response.json())
+                .then(data => {
+                    const eventos = data.map(clase => ({
+                        id: clase.id,
+                        title: clase.alumno_nombre,
+                        start: `${clase.fecha}T${clase.hora_inicio}`,
+                        end: `${clase.fecha}T${clase.hora_fin}`,
+                        extendedProps: {
+                            profesor: clase.profesor_nombre,
+                            observaciones: clase.observaciones
+                        }
+                    }));
+                    successCallback(eventos);
+                })
+                .catch(error => {
+                    console.error('Error al cargar eventos:', error);
+                    failureCallback(error);
+                });
+        },
+        eventClick: function(info) {
+            alert(`Alumno: ${info.event.title}\nProfesor: ${info.event.extendedProps.profesor}\nObservaciones: ${info.event.extendedProps.observaciones || "Ninguna"}`);
+        }
+    });
+
+    calendar.render();
+}
+
+function mostrarClasesHoy() {
+    fetch('php/listar_clases.php')
+        .then(response => response.json())
+        .then(data => {
+            const hoy = new Date().toISOString().split('T')[0];
+            const tbody = document.getElementById('clasesHoy');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const clasesHoy = data.filter(c => c.fecha === hoy);
+
+            clasesHoy.forEach(clase => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${clase.hora_inicio} - ${clase.hora_fin}</td>
+                        <td>${clase.alumno_nombre}</td>
+                        <td>${clase.profesor_nombre}</td>
+                        <td>${clase.observaciones || 'Sin info'}</td>
+                    </tr>
+                `;
+            });
+        });
+}
+
