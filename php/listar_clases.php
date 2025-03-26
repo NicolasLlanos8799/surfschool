@@ -9,7 +9,6 @@
 require 'db.php';
 
 try {
-    // Consulta SQL para obtener la lista de clases con la información del profesor
     $stmt = $pdo->query("
         SELECT 
             clases.id, 
@@ -17,19 +16,16 @@ try {
             clases.hora_inicio, 
             clases.hora_fin, 
             clases.alumno_nombre, 
+            clases.observaciones,
             usuarios.nombre AS profesor_nombre 
         FROM clases 
         JOIN usuarios ON clases.profesor_id = usuarios.id
     ");
 
-    // Obtener los resultados en un array asociativo
     $clases = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Enviar los datos en formato JSON
     echo json_encode($clases);
 
 } catch (Exception $e) {
-    // En caso de error, devolver un mensaje JSON indicando el fallo
     echo json_encode([
         "success" => false, 
         "message" => "Error al obtener las clases"

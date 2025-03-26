@@ -38,29 +38,45 @@ function asignarClase() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Clase asignada correctamente.");
-            document.getElementById("formulario-clase").style.display = "none";
-            cargarClases();
-            if (typeof cargarPagos === "function") cargarPagos();
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(error => console.error("Error al asignar la clase:", error));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Clase asignada correctamente.");
+                document.getElementById("formulario-clase").style.display = "none";
+                cargarClases();
+                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
+                    calendarInstancia.refetchEvents();
+                }                
+
+                if (typeof cargarPagos === "function") cargarPagos();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error al asignar la clase:", error));
 }
+
+function generarColorDesdeTexto(texto) {
+    let hash = 0;
+    for (let i = 0; i < texto.length; i++) {
+        hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = '#' + ((hash >> 24) & 0xFF).toString(16).padStart(2, '0') +
+        ((hash >> 16) & 0xFF).toString(16).padStart(2, '0') +
+        ((hash >> 8) & 0xFF).toString(16).padStart(2, '0');
+    return color.slice(0, 7);
+}
+
 
 function cargarClases() {
     fetch("php/listar_clases.php")
-    .then(response => response.json())
-    .then(data => {
-        const tabla = document.getElementById("tablaClases");
-        tabla.innerHTML = "";
+        .then(response => response.json())
+        .then(data => {
+            const tabla = document.getElementById("tablaClases");
+            tabla.innerHTML = "";
 
-        data.forEach(clase => {
-            let fila = `
+            data.forEach(clase => {
+                let fila = `
                 <tr>
                     <td>${clase.id}</td>
                     <td>${clase.profesor_nombre}</td>
@@ -72,10 +88,10 @@ function cargarClases() {
                         <button class="btn btn-danger btn-sm" onclick="eliminarClase(${clase.id})">Eliminar</button>
                     </td>
                 </tr>`;
-            tabla.innerHTML += fila;
-        });
-    })
-    .catch(error => console.error("Error al cargar las clases:", error));
+                tabla.innerHTML += fila;
+            });
+        })
+        .catch(error => console.error("Error al cargar las clases:", error));
 }
 
 function editarClase(id, profesorId, fecha, horaInicio, horaFin, alumno) {
@@ -107,18 +123,21 @@ function guardarEdicionClase() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Clase editada correctamente.");
-            document.getElementById("formulario-editar-clase").style.display = "none";
-            cargarClases();
-            if (typeof cargarPagos === "function") cargarPagos();
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(error => console.error("Error al editar la clase:", error));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Clase editada correctamente.");
+                document.getElementById("formulario-editar-clase").style.display = "none";
+                cargarClases();
+                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
+                    calendarInstancia.refetchEvents();
+                }
+                if (typeof cargarPagos === "function") cargarPagos();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error al editar la clase:", error));
 }
 
 function eliminarClase(id) {
@@ -131,59 +150,62 @@ function eliminarClase(id) {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${id}`
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Clase eliminada correctamente.");
-            cargarClases();
-            if (typeof cargarPagos === "function") cargarPagos();
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(error => console.error("Error al eliminar la clase:", error));
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Clase eliminada correctamente.");
+                cargarClases();
+                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
+                    calendarInstancia.refetchEvents();
+                }
+                if (typeof cargarPagos === "function") cargarPagos();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error al eliminar la clase:", error));
 }
 
 function cargarListaProfesores() {
     fetch("php/listar_profesores.php")
-    .then(response => response.json())
-    .then(data => {
-        const selectProfesores = document.getElementById("profesor");
-        if (!selectProfesores) {
-            console.error("Error: No se encontró el elemento select de profesores en el DOM.");
-            return;
-        }
+        .then(response => response.json())
+        .then(data => {
+            const selectProfesores = document.getElementById("profesor");
+            if (!selectProfesores) {
+                console.error("Error: No se encontró el elemento select de profesores en el DOM.");
+                return;
+            }
 
-        selectProfesores.innerHTML = '<option value="">Seleccione un profesor</option>';
+            selectProfesores.innerHTML = '<option value="">Seleccione un profesor</option>';
 
-        data.forEach(profesor => {
-            let opcion = document.createElement("option");
-            opcion.value = profesor.id;
-            opcion.textContent = profesor.nombre;
-            selectProfesores.appendChild(opcion);
-        });
-    })
-    .catch(error => console.error("Error al cargar los profesores en el formulario:", error));
+            data.forEach(profesor => {
+                let opcion = document.createElement("option");
+                opcion.value = profesor.id;
+                opcion.textContent = profesor.nombre;
+                selectProfesores.appendChild(opcion);
+            });
+        })
+        .catch(error => console.error("Error al cargar los profesores en el formulario:", error));
 }
 
 function cargarListaProfesoresEdicion(profesorSeleccionado) {
     fetch("php/listar_profesores.php")
-    .then(response => response.json())
-    .then(data => {
-        const selectProfesores = document.getElementById("editar_profesor");
-        selectProfesores.innerHTML = '<option value="">Seleccione un profesor</option>';
+        .then(response => response.json())
+        .then(data => {
+            const selectProfesores = document.getElementById("editar_profesor");
+            selectProfesores.innerHTML = '<option value="">Seleccione un profesor</option>';
 
-        data.forEach(profesor => {
-            let opcion = document.createElement("option");
-            opcion.value = profesor.id;
-            opcion.textContent = profesor.nombre;
-            if (profesor.id == profesorSeleccionado) {
-                opcion.selected = true;
-            }
-            selectProfesores.appendChild(opcion);
-        });
-    })
-    .catch(error => console.error("Error al cargar los profesores en edición:", error));
+            data.forEach(profesor => {
+                let opcion = document.createElement("option");
+                opcion.value = profesor.id;
+                opcion.textContent = profesor.nombre;
+                if (profesor.id == profesorSeleccionado) {
+                    opcion.selected = true;
+                }
+                selectProfesores.appendChild(opcion);
+            });
+        })
+        .catch(error => console.error("Error al cargar los profesores en edición:", error));
 }
 
 function inicializarCalendario() {
@@ -196,56 +218,116 @@ function inicializarCalendario() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,listWeek'
         },
-        events: function(fetchInfo, successCallback, failureCallback) {
+        events: function (fetchInfo, successCallback, failureCallback) {
             fetch('php/listar_clases.php')
                 .then(response => response.json())
                 .then(data => {
-                    const eventos = data.map(clase => ({
-                        id: clase.id,
-                        title: clase.alumno_nombre,
-                        start: `${clase.fecha}T${clase.hora_inicio}`,
-                        end: `${clase.fecha}T${clase.hora_fin}`,
-                        extendedProps: {
-                            profesor: clase.profesor_nombre,
-                            observaciones: clase.observaciones
-                        }
-                    }));
+                    const profesoresUnicos = [...new Set(data.map(c => c.profesor_nombre))];
+                    mostrarLeyendaProfesores(profesoresUnicos);
+
+                    const eventos = data.map(clase => {
+                        const color = generarColorDesdeTexto(clase.profesor_nombre);
+                        return {
+                            id: clase.id,
+                            title: clase.alumno_nombre,
+                            start: `${clase.fecha}T${clase.hora_inicio}`,
+                            end: `${clase.fecha}T${clase.hora_fin}`,
+                            backgroundColor: color,
+                            borderColor: color,
+                            textColor: "#fff",
+                            extendedProps: {
+                                profesor: clase.profesor_nombre,
+                                observaciones: clase.observaciones
+                            }
+                        };
+                    });
+
                     successCallback(eventos);
                 })
+
                 .catch(error => {
                     console.error('Error al cargar eventos:', error);
                     failureCallback(error);
                 });
         },
-        eventClick: function(info) {
-            alert(`Alumno: ${info.event.title}\nProfesor: ${info.event.extendedProps.profesor}\nObservaciones: ${info.event.extendedProps.observaciones || "Ninguna"}`);
+        eventClick: function (info) {
+            const evento = info.event;
+
+            document.getElementById('detalleAlumno').textContent = evento.title;
+            document.getElementById('detalleProfesor').textContent = evento.extendedProps.profesor;
+            document.getElementById('detalleObservaciones').textContent = evento.extendedProps.observaciones?.trim() || 'Sin observaciones';
+
+            const fechaObj = evento.start;
+            const fecha = `${String(fechaObj.getDate()).padStart(2, '0')}-${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${fechaObj.getFullYear()}`;
+            const horaInicio = evento.start.toTimeString().slice(0, 5);
+            const horaFin = evento.end ? evento.end.toTimeString().slice(0, 5) : "—";
+            document.getElementById('detalleFecha').textContent = fecha;
+            document.getElementById('detalleHorario').textContent = `${horaInicio} - ${horaFin}`;
+
+            document.getElementById('btnEditarClase').onclick = function () {
+                abrirFormularioEdicion(evento.id);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
+                if (modal) modal.hide();
+            };
+
+            document.getElementById('btnEliminarClase').onclick = function () {
+                eliminarClase(evento.id);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
+                if (modal) modal.hide();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
+            modal.show();
         }
     });
 
     calendar.render();
+    return calendar; // Muy importante para calendarInstancia
 }
 
-function mostrarClasesHoy() {
+function abrirFormularioEdicion(id) {
     fetch('php/listar_clases.php')
         .then(response => response.json())
         .then(data => {
-            const hoy = new Date().toISOString().split('T')[0];
-            const tbody = document.getElementById('clasesHoy');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+            const clase = data.find(c => c.id == id);
+            if (!clase) {
+                alert("Clase no encontrada");
+                return;
+            }
 
-            const clasesHoy = data.filter(c => c.fecha === hoy);
+            document.getElementById("clase_id").value = clase.id;
+            document.getElementById("editar_fecha").value = clase.fecha;
+            document.getElementById("editar_hora_inicio").value = clase.hora_inicio;
+            document.getElementById("editar_hora_fin").value = clase.hora_fin;
+            document.getElementById("editar_alumno").value = clase.alumno_nombre;
+            document.getElementById("editar_email_alumno").value = clase.email;
+            document.getElementById("editar_telefono_alumno").value = clase.telefono;
+            document.getElementById("editar_observaciones").value = clase.observaciones || '';
 
-            clasesHoy.forEach(clase => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${clase.hora_inicio} - ${clase.hora_fin}</td>
-                        <td>${clase.alumno_nombre}</td>
-                        <td>${clase.profesor_nombre}</td>
-                        <td>${clase.observaciones || 'Sin info'}</td>
-                    </tr>
-                `;
-            });
+            cargarListaProfesoresEdicion(clase.profesor_id);
+            document.getElementById("formulario-editar-clase").style.display = "block";
         });
+}
+
+function mostrarLeyendaProfesores(profesores) {
+    const contenedor = document.getElementById('leyendaProfesores');
+    contenedor.innerHTML = ''; // limpiar contenido previo
+
+    const coloresAsignados = {};
+
+    profesores.forEach(nombre => {
+        if (!coloresAsignados[nombre]) {
+            const color = generarColorDesdeTexto(nombre);
+            coloresAsignados[nombre] = color;
+
+            const etiqueta = document.createElement('div');
+            etiqueta.className = 'd-flex align-items-center gap-2';
+            etiqueta.innerHTML = `
+                <span style="width: 16px; height: 16px; background-color: ${color}; border-radius: 4px; display: inline-block;"></span>
+                <span>${nombre}</span>
+            `;
+            contenedor.appendChild(etiqueta);
+        }
+    });
 }
 
