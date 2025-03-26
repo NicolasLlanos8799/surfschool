@@ -41,18 +41,28 @@ function asignarClase() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Clase asignada correctamente.");
-                document.getElementById("formulario-clase").style.display = "none";
+                // ✅ Cerrar el modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignarClase'));
+                if (modal) modal.hide();
+        
+                // ✅ Actualizar lista de clases y calendario
                 cargarClases();
-                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
+        
+                if (calendarInstancia?.refetchEvents) {
                     calendarInstancia.refetchEvents();
-                }                
-
-                if (typeof cargarPagos === "function") cargarPagos();
+                }
+        
+                if (typeof cargarPagos === "function") {
+                    cargarPagos();
+                }
+        
+                // ✅ Mostrar toast de éxito
+                mostrarToast("Clase asignada correctamente", "success");
             } else {
-                alert("Error: " + data.message);
+                mostrarToast("Error: " + data.message, "danger");
             }
         })
+        
         .catch(error => console.error("Error al asignar la clase:", error));
 }
 
@@ -126,7 +136,7 @@ function guardarEdicionClase() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Clase editada correctamente.");
+                mostrarToast("Clase editada correctamente.");
                 document.getElementById("formulario-editar-clase").style.display = "none";
                 cargarClases();
                 if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
@@ -153,7 +163,7 @@ function eliminarClase(id) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Clase eliminada correctamente.");
+                mostrarToast("Clase eliminada correctamente.");
                 cargarClases();
                 if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
                     calendarInstancia.refetchEvents();
@@ -218,7 +228,28 @@ function inicializarCalendario() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,listWeek'
         },
-        events: function (fetchInfo, successCallback, failureCallback) {
+
+        // ✅ Al hacer clic en un día: abrir el modal para asignar clase
+        dateClick: function(info) {
+            const fecha = info.dateStr;
+
+            // Setear fecha en el modal
+            document.getElementById("fecha").value = fecha;
+            document.getElementById("hora_inicio").value = '';
+            document.getElementById("hora_fin").value = '';
+            document.getElementById("alumno").value = '';
+            document.getElementById("email_alumno").value = '';
+            document.getElementById("telefono_alumno").value = '';
+            document.getElementById("observaciones").value = '';
+
+            cargarListaProfesores();
+
+            const modal = new bootstrap.Modal(document.getElementById('modalAsignarClase'));
+            modal.show();
+        },
+
+        // ✅ Cargar eventos desde PHP y asignar colores únicos
+        events: function(fetchInfo, successCallback, failureCallback) {
             fetch('php/listar_clases.php')
                 .then(response => response.json())
                 .then(data => {
@@ -244,13 +275,14 @@ function inicializarCalendario() {
 
                     successCallback(eventos);
                 })
-
                 .catch(error => {
                     console.error('Error al cargar eventos:', error);
                     failureCallback(error);
                 });
         },
-        eventClick: function (info) {
+
+        // ✅ Click en evento: abrir modal con detalle
+        eventClick: function(info) {
             const evento = info.event;
 
             document.getElementById('detalleAlumno').textContent = evento.title;
@@ -261,6 +293,7 @@ function inicializarCalendario() {
             const fecha = `${String(fechaObj.getDate()).padStart(2, '0')}-${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${fechaObj.getFullYear()}`;
             const horaInicio = evento.start.toTimeString().slice(0, 5);
             const horaFin = evento.end ? evento.end.toTimeString().slice(0, 5) : "—";
+
             document.getElementById('detalleFecha').textContent = fecha;
             document.getElementById('detalleHorario').textContent = `${horaInicio} - ${horaFin}`;
 
@@ -282,8 +315,10 @@ function inicializarCalendario() {
     });
 
     calendar.render();
-    return calendar; // Muy importante para calendarInstancia
+    return calendar;
 }
+
+
 
 function abrirFormularioEdicion(id) {
     fetch('php/listar_clases.php')
@@ -291,7 +326,7 @@ function abrirFormularioEdicion(id) {
         .then(data => {
             const clase = data.find(c => c.id == id);
             if (!clase) {
-                alert("Clase no encontrada");
+                mostrarToast("Clase no encontrada");
                 return;
             }
 
@@ -329,5 +364,20 @@ function mostrarLeyendaProfesores(profesores) {
             contenedor.appendChild(etiqueta);
         }
     });
+}
+
+function mostrarToast(mensaje, tipo = "success") {
+    const toast = document.getElementById("toastGeneral");
+    const toastBody = document.getElementById("toastMensaje");
+
+    // Setea el mensaje
+    toastBody.textContent = mensaje;
+
+    // Limpia clases previas de color y agrega la nueva
+    toast.className = "toast align-items-center text-white border-0 bg-" + tipo;
+
+    // Muestra el toast
+    const toastInstance = new bootstrap.Toast(toast);
+    toastInstance.show();
 }
 
