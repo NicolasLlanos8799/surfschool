@@ -78,122 +78,163 @@
             </div>
         </div>
 
-        <!-- Sección de Gestión de Clases -->
-        <div id="clases" class="seccion" style="display: none;">
-            <h3>Gestión de Clases</h3>
+      <!-- Sección de Gestión de Clases -->
+<div id="clases" class="seccion" style="display: none;">
+    <h3>Gestión de Clases</h3>
 
-            <!-- Calendario -->
-            <p class="text-muted small mb-2">📌 Haz clic en un día del calendario para agendar una nueva clase</p>
-            <div id="calendar" class="mb-4"></div>
-            <!-- Leyenda de profesores -->
-            <div id="leyendaProfesores" class="d-flex flex-wrap gap-2 mb-4"></div>
+    <!-- Calendario -->
+    <p class="text-muted small mb-2">📌 Haz clic en un día del calendario para agendar una nueva clase</p>
+    <div id="calendar" class="mb-4"></div>
 
-            <!-- 👇 Esto va justo antes del </body> -->
-            <div class="modal fade" id="modalDetalleClase" tabindex="-1" aria-labelledby="modalDetalleClaseLabel"
-                aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content bg-dark text-white">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalDetalleClaseLabel">Detalle de la Clase</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p><strong>Alumno:</strong> <span id="detalleAlumno"></span></p>
-                            <p><strong>Profesor:</strong> <span id="detalleProfesor"></span></p>
-                            <p><strong>Fecha:</strong> <span id="detalleFecha"></span></p>
-                            <p><strong>Horario:</strong> <span id="detalleHorario"></span></p>
-                            <p><strong>Observaciones:</strong> <span id="detalleObservaciones"></span></p>
+    <!-- Leyenda de profesores -->
+    <div id="leyendaProfesores" class="d-flex flex-wrap gap-2 mb-4"></div>
 
-                        </div>
-                        <div class="modal-footer">
-                            <button id="btnEditarClase" class="btn btn-warning">Editar</button>
-                            <button id="btnEliminarClase" class="btn btn-danger">Eliminar</button>
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        </div>
-                    </div>
+    <!-- Modal Detalle de Clase -->
+    <div class="modal fade" id="modalDetalleClase" tabindex="-1" aria-labelledby="modalDetalleClaseLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetalleClaseLabel">Detalle de la Clase</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Alumno:</strong> <span id="detalleAlumno"></span></p>
+                    <p><strong>Profesor:</strong> <span id="detalleProfesor"></span></p>
+                    <p><strong>Fecha:</strong> <span id="detalleFecha"></span></p>
+                    <p><strong>Horario:</strong> <span id="detalleHorario"></span></p>
+                    <p><strong>Correo:</strong> <span id="detalleEmail"></span></p>
+                    <p><strong>Teléfono:</strong> <span id="detalleTelefono"></span></p>
+                    <p><strong>Observaciones:</strong> <span id="detalleObservaciones"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnEditarClase" class="btn btn-warning">Editar</button>
+                    <button id="btnEliminarClase" class="btn btn-danger">Eliminar</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
-
-            <!-- Formulario de edición -->
-            <div id="formulario-editar-clase" style="display: none;">
-                <h4>Editar Clase</h4>
-                <input type="hidden" id="clase_id">
-                <select id="editar_profesor" class="form-control">
-                    <option value="">Seleccione un profesor</option>
-                </select>
-                <input type="date" id="editar_fecha" class="form-control mt-2">
-                <input type="time" id="editar_hora_inicio" class="form-control mt-2">
-                <input type="time" id="editar_hora_fin" class="form-control mt-2">
-                <input type="text" id="editar_alumno" class="form-control mt-2" placeholder="Nombre del Alumno">
-                <input type="email" id="editar_email_alumno" class="form-control mt-2" placeholder="Correo del Alumno">
-                <input type="text" id="editar_telefono_alumno" class="form-control mt-2"
-                    placeholder="Teléfono del Alumno">
-                <textarea id="editar_observaciones" class="form-control mt-2"
-                    placeholder="Observaciones (opcional)"></textarea>
-                <button class="btn btn-success mt-2" onclick="guardarEdicionClase()">Guardar Cambios</button>
-            </div>
-
-            <!-- Modal para Asignar Clase -->
-            <div class="modal fade" id="modalAsignarClase" tabindex="-1" aria-labelledby="modalAsignarClaseLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content bg-light">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalAsignarClaseLabel">Asignar Nueva Clase</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="formAsignarClase">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label for="profesor" class="form-label">Profesor</label>
-                                        <select id="profesor" class="form-select" required>
-                                            <option value="">Seleccione un profesor</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="fecha" class="form-label">Fecha</label>
-                                        <input type="date" id="fecha" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hora_inicio" class="form-label">Hora de Inicio</label>
-                                        <input type="time" id="hora_inicio" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="hora_fin" class="form-label">Hora de Fin</label>
-                                        <input type="time" id="hora_fin" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="alumno" class="form-label">Nombre del Alumno</label>
-                                        <input type="text" id="alumno" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="email_alumno" class="form-label">Correo del Alumno</label>
-                                        <input type="email" id="email_alumno" class="form-control">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="telefono_alumno" class="form-label">Teléfono del Alumno</label>
-                                        <input type="text" id="telefono_alumno" class="form-control">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="observaciones" class="form-label">Observaciones</label>
-                                        <textarea id="observaciones" class="form-control" rows="2"></textarea>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button class="btn btn-success" onclick="asignarClase()">Guardar Clase</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
+    </div>
 
+    <!-- Modal para Asignar Clase -->
+    <div class="modal fade" id="modalAsignarClase" tabindex="-1" aria-labelledby="modalAsignarClaseLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-light">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAsignarClaseLabel">Asignar Nueva Clase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAsignarClase">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="profesor" class="form-label">Profesor</label>
+                                <select id="profesor" class="form-select" required>
+                                    <option value="">Seleccione un profesor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="fecha" class="form-label">Fecha</label>
+                                <input type="date" id="fecha" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+                                <input type="time" id="hora_inicio" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hora_fin" class="form-label">Hora de Fin</label>
+                                <input type="time" id="hora_fin" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="alumno" class="form-label">Nombre del Alumno</label>
+                                <input type="text" id="alumno" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email_alumno" class="form-label">Correo del Alumno</label>
+                                <input type="email" id="email_alumno" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefono_alumno" class="form-label">Teléfono del Alumno</label>
+                                <input type="text" id="telefono_alumno" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label for="observaciones" class="form-label">Observaciones</label>
+                                <textarea id="observaciones" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" onclick="asignarClase()">Guardar Clase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Clase -->
+    <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-labelledby="modalEditarClaseLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-light">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarClaseLabel">Editar Clase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarClase">
+                        <input type="hidden" id="clase_id">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="editar_profesor" class="form-label">Profesor</label>
+                                <select id="editar_profesor" class="form-select" required>
+                                    <option value="">Seleccione un profesor</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_fecha" class="form-label">Fecha</label>
+                                <input type="date" id="editar_fecha" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_hora_inicio" class="form-label">Hora de Inicio</label>
+                                <input type="time" id="editar_hora_inicio" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_hora_fin" class="form-label">Hora de Fin</label>
+                                <input type="time" id="editar_hora_fin" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_alumno" class="form-label">Nombre del Alumno</label>
+                                <input type="text" id="editar_alumno" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_email_alumno" class="form-label">Correo del Alumno</label>
+                                <input type="email" id="editar_email_alumno" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editar_telefono_alumno" class="form-label">Teléfono del Alumno</label>
+                                <input type="text" id="editar_telefono_alumno" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label for="editar_observaciones" class="form-label">Observaciones</label>
+                                <textarea id="editar_observaciones" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" onclick="guardarEdicionClase()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
         <!-- Sección de Gestión de Pagos -->
         <div id="pagos" class="seccion" style="display: none;">

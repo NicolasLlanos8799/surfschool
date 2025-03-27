@@ -104,17 +104,6 @@ function cargarClases() {
         .catch(error => console.error("Error al cargar las clases:", error));
 }
 
-function editarClase(id, profesorId, fecha, horaInicio, horaFin, alumno) {
-    document.getElementById("clase_id").value = id;
-    document.getElementById("editar_fecha").value = fecha;
-    document.getElementById("editar_hora_inicio").value = horaInicio;
-    document.getElementById("editar_hora_fin").value = horaFin;
-    document.getElementById("editar_alumno").value = alumno;
-
-    cargarListaProfesoresEdicion(profesorId);
-    document.getElementById("formulario-editar-clase").style.display = "block";
-}
-
 function guardarEdicionClase() {
     const id = document.getElementById("clase_id").value;
     const profesorId = document.getElementById("editar_profesor").value;
@@ -122,33 +111,44 @@ function guardarEdicionClase() {
     const horaInicio = document.getElementById("editar_hora_inicio").value;
     const horaFin = document.getElementById("editar_hora_fin").value;
     const alumno = document.getElementById("editar_alumno").value.trim();
+    const email = document.getElementById("editar_email_alumno").value.trim();
+    const telefono = document.getElementById("editar_telefono_alumno").value.trim();
+    const observaciones = document.getElementById("editar_observaciones").value.trim();
 
     if (!id || !profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
-        alert("Todos los campos son obligatorios.");
+        mostrarToast("Todos los campos obligatorios deben estar completos", "warning");
         return;
     }
 
     fetch("php/editar_clase.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}`
+        body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarToast("Clase editada correctamente.");
-                document.getElementById("formulario-editar-clase").style.display = "none";
-                cargarClases();
-                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
-                    calendarInstancia.refetchEvents();
-                }
-                if (typeof cargarPagos === "function") cargarPagos();
-            } else {
-                alert("Error: " + data.message);
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarClase'));
+            if (modal) modal.hide();
+
+            cargarClases();
+            if (calendarInstancia?.refetchEvents) {
+                calendarInstancia.refetchEvents();
             }
-        })
-        .catch(error => console.error("Error al editar la clase:", error));
+
+            if (typeof cargarPagos === "function") cargarPagos();
+
+            mostrarToast("Clase editada correctamente", "success");
+        } else {
+            mostrarToast("Error al editar la clase", "danger");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        mostrarToast("Error de red al guardar cambios", "danger");
+    });
 }
+
 
 function eliminarClase(id) {
     if (!confirm("¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.")) {
@@ -255,7 +255,7 @@ function inicializarCalendario() {
                 .then(data => {
                     const profesoresUnicos = [...new Set(data.map(c => c.profesor_nombre))];
                     mostrarLeyendaProfesores(profesoresUnicos);
-
+        
                     const eventos = data.map(clase => {
                         const color = generarColorDesdeTexto(clase.profesor_nombre);
                         return {
@@ -268,11 +268,13 @@ function inicializarCalendario() {
                             textColor: "#fff",
                             extendedProps: {
                                 profesor: clase.profesor_nombre,
-                                observaciones: clase.observaciones
+                                observaciones: clase.observaciones,
+                                email: clase.email,
+                                telefono: clase.telefono
                             }
                         };
                     });
-
+        
                     successCallback(eventos);
                 })
                 .catch(error => {
@@ -280,38 +282,41 @@ function inicializarCalendario() {
                     failureCallback(error);
                 });
         },
+        
 
         // ✅ Click en evento: abrir modal con detalle
         eventClick: function(info) {
             const evento = info.event;
-
+        
             document.getElementById('detalleAlumno').textContent = evento.title;
             document.getElementById('detalleProfesor').textContent = evento.extendedProps.profesor;
             document.getElementById('detalleObservaciones').textContent = evento.extendedProps.observaciones?.trim() || 'Sin observaciones';
-
+            document.getElementById('detalleEmail').textContent = evento.extendedProps.email || '—';
+            document.getElementById('detalleTelefono').textContent = evento.extendedProps.telefono || '—';
+        
             const fechaObj = evento.start;
             const fecha = `${String(fechaObj.getDate()).padStart(2, '0')}-${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${fechaObj.getFullYear()}`;
             const horaInicio = evento.start.toTimeString().slice(0, 5);
             const horaFin = evento.end ? evento.end.toTimeString().slice(0, 5) : "—";
-
+        
             document.getElementById('detalleFecha').textContent = fecha;
             document.getElementById('detalleHorario').textContent = `${horaInicio} - ${horaFin}`;
-
+        
             document.getElementById('btnEditarClase').onclick = function () {
                 abrirFormularioEdicion(evento.id);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
                 if (modal) modal.hide();
             };
-
+        
             document.getElementById('btnEliminarClase').onclick = function () {
                 eliminarClase(evento.id);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
                 if (modal) modal.hide();
             };
-
+        
             const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
             modal.show();
-        }
+        },        
     });
 
     calendar.render();
@@ -326,10 +331,11 @@ function abrirFormularioEdicion(id) {
         .then(data => {
             const clase = data.find(c => c.id == id);
             if (!clase) {
-                mostrarToast("Clase no encontrada");
+                mostrarToast("Clase no encontrada", true);
                 return;
             }
 
+            // Llenar campos del formulario
             document.getElementById("clase_id").value = clase.id;
             document.getElementById("editar_fecha").value = clase.fecha;
             document.getElementById("editar_hora_inicio").value = clase.hora_inicio;
@@ -340,9 +346,14 @@ function abrirFormularioEdicion(id) {
             document.getElementById("editar_observaciones").value = clase.observaciones || '';
 
             cargarListaProfesoresEdicion(clase.profesor_id);
-            document.getElementById("formulario-editar-clase").style.display = "block";
+
+            // 👉 Mostrar el nuevo modal
+            const modal = new bootstrap.Modal(document.getElementById('modalEditarClase'));
+            modal.show();
         });
 }
+
+
 
 function mostrarLeyendaProfesores(profesores) {
     const contenedor = document.getElementById('leyendaProfesores');
