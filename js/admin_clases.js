@@ -19,6 +19,11 @@ function mostrarFormularioClase() {
 }
 
 function asignarClase() {
+    const btn = document.getElementById("btnGuardarClase");
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status" aria-hidden="true"></span> Guardando...`;
+
     const profesorId = document.getElementById("profesor").value;
     const fecha = document.getElementById("fecha").value;
     const horaInicio = document.getElementById("hora_inicio").value;
@@ -30,6 +35,8 @@ function asignarClase() {
 
     if (!profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
         alert("Todos los campos son obligatorios.");
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         return;
     }
 
@@ -38,33 +45,30 @@ function asignarClase() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // ✅ Cerrar el modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignarClase'));
-                if (modal) modal.hide();
-        
-                // ✅ Actualizar lista de clases y calendario
-                cargarClases();
-        
-                if (calendarInstancia?.refetchEvents) {
-                    calendarInstancia.refetchEvents();
-                }
-        
-                if (typeof cargarPagos === "function") {
-                    cargarPagos();
-                }
-        
-                // ✅ Mostrar toast de éxito
-                mostrarToast("Clase asignada correctamente", "success");
-            } else {
-                mostrarToast("Error: " + data.message, "danger");
-            }
-        })
-        
-        .catch(error => console.error("Error al asignar la clase:", error));
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignarClase'));
+            if (modal) modal.hide();
+            cargarClases();
+            if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+            if (typeof cargarPagos === "function") cargarPagos();
+            mostrarToast("Clase asignada correctamente", "success");
+        } else {
+            mostrarToast("Error: " + data.message, "danger");
+        }
+    })
+    .catch(error => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        console.error("Error al asignar la clase:", error);
+        mostrarToast("Error al asignar la clase", "danger");
+    });
 }
+
 
 function generarColorDesdeTexto(texto) {
     let hash = 0;
