@@ -1,5 +1,10 @@
 <?php
-require 'db.php'; // Conexión a la base de datos
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json');
+require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? '';
@@ -9,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Obtener el profesor de la clase antes de eliminarla
-    $stmt = $pdo->prepare("SELECT profesor_id FROM clases WHERE id = ?");
+    // Obtener los datos de la clase antes de eliminarla
+    $stmt = $pdo->prepare("SELECT * FROM clases WHERE id = ?");
     $stmt->execute([$id]);
     $clase = $stmt->fetch();
 
@@ -20,6 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $profesor_id = $clase['profesor_id'];
+
+    // Obtener datos del profesor (nombre + email)
+    $stmt = $pdo->prepare("SELECT nombre, email, tarifa_hora FROM usuarios WHERE id = ?");
+    $stmt->execute([$profesor_id]);
+    $profesor = $stmt->fetch();
 
     // Eliminar la clase
     $stmt = $pdo->prepare("DELETE FROM clases WHERE id = ?");
@@ -31,15 +41,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $resultado = $stmt->fetch();
     $total_horas = $resultado['total_horas'] ?? 0;
 
-    // Obtener tarifa por hora del profesor
-    $stmt = $pdo->prepare("SELECT tarifa_hora FROM usuarios WHERE id = ?");
-    $stmt->execute([$profesor_id]);
-    $profesor = $stmt->fetch();
     $total_pagar = $total_horas * $profesor['tarifa_hora'];
 
-    // Actualizar pagos en la base de datos
     $stmt = $pdo->prepare("UPDATE pagos SET total_horas = ?, total = ? WHERE profesor_id = ? AND estado = 'pendiente'");
     $stmt->execute([$total_horas, $total_pagar, $profesor_id]);
+
+    // Enviar correo de cancelación (si hay datos suficientes)
+    if ($profesor && !empty($clase['email'])) {
+        $GLOBALS['datos_correo'] = [
+            'nombre_profesor' => $profesor['nombre'],
+            'correo_profesor' => $profesor['email'],
+            'nombre_alumno' => $clase['alumno_nombre'],
+            'correo_alumno' => $clase['email'],
+            'fecha' => $clase['fecha'],
+            'hora_inicio' => $clase['hora_inicio'],
+            'hora_fin' => $clase['hora_fin'],
+            'tipo' => 'eliminar'
+        ];
+
+        ob_start();
+        include __DIR__ . '/enviar_correo_clase.php';
+        ob_end_clean();
+    }
 
     echo json_encode(['success' => true]);
 }

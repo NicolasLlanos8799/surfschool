@@ -3,9 +3,14 @@
 // Archivo: editar_clase.php
 // Funcionalidad: Permite editar y actualizar una clase existente 
 // en la base de datos a través de una solicitud POST.
+// También notifica vía email a profesor y alumno sobre la modificación.
 // ===========================================================
 
-// Incluir la conexión a la base de datos
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json');
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,15 +20,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hora_inicio = $_POST['hora_inicio'] ?? '';
     $hora_fin = $_POST['hora_fin'] ?? '';
     $alumno = $_POST['alumno'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $telefono = $_POST['telefono'] ?? '';
+    $observaciones = $_POST['observaciones'] ?? '';
 
     if (empty($id) || empty($profesor_id) || empty($fecha) || empty($hora_inicio) || empty($hora_fin) || empty($alumno)) {
-        echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios']);
+        echo json_encode(['success' => false, 'message' => 'Todos los campos obligatorios deben estar completos']);
         exit;
     }
 
     // Actualizar la clase
-    $stmt = $pdo->prepare("UPDATE clases SET profesor_id = ?, fecha = ?, hora_inicio = ?, hora_fin = ?, alumno_nombre = ? WHERE id = ?");
-    $stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $id]);
+    $stmt = $pdo->prepare("
+        UPDATE clases SET 
+            profesor_id = ?, 
+            fecha = ?, 
+            hora_inicio = ?, 
+            hora_fin = ?, 
+            alumno_nombre = ?, 
+            email = ?, 
+            telefono = ?, 
+            observaciones = ?
+        WHERE id = ?
+    ");
+    $stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $email, $telefono, $observaciones, $id]);
 
     // Recalcular el pago del profesor después de editar la clase
     $stmt = $pdo->prepare("
@@ -35,15 +54,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $total_horas = $resultado['total_horas'];
 
     // Obtener la tarifa del profesor
-    $stmt = $pdo->prepare("SELECT tarifa_hora FROM usuarios WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT nombre, email, tarifa_hora FROM usuarios WHERE id = ? AND rol = 'profesor'");
     $stmt->execute([$profesor_id]);
     $profesor = $stmt->fetch();
 
-    $total_pagar = $total_horas * $profesor['tarifa_hora'];
+    if ($profesor) {
+        $total_pagar = $total_horas * $profesor['tarifa_hora'];
 
-    // Actualizar el pago si existe
-    $stmt = $pdo->prepare("UPDATE pagos SET total_horas = ?, total = ? WHERE profesor_id = ? AND estado = 'pendiente'");
-    $stmt->execute([$total_horas, $total_pagar, $profesor_id]);
+        // Actualizar el pago si existe
+        $stmt = $pdo->prepare("UPDATE pagos SET total_horas = ?, total = ? WHERE profesor_id = ? AND estado = 'pendiente'");
+        $stmt->execute([$total_horas, $total_pagar, $profesor_id]);
+
+        // Enviar email notificando edición
+        $GLOBALS['datos_correo'] = [
+            'nombre_profesor' => $profesor['nombre'],
+            'correo_profesor' => $profesor['email'],
+            'nombre_alumno' => $alumno,
+            'correo_alumno' => $email,
+            'fecha' => $fecha,
+            'hora_inicio' => $hora_inicio,
+            'hora_fin' => $hora_fin,
+            'tipo' => 'editar'
+        ];
+
+        ob_start();
+        include __DIR__ . '/enviar_correo_clase.php';
+        ob_end_clean();
+    }
 
     echo json_encode(['success' => true]);
 }

@@ -109,6 +109,11 @@ function cargarClases() {
 }
 
 function guardarEdicionClase() {
+    const btn = document.getElementById("btnGuardarEdicion");
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status" aria-hidden="true"></span> Guardando...`;
+
     const id = document.getElementById("clase_id").value;
     const profesorId = document.getElementById("editar_profesor").value;
     const fecha = document.getElementById("editar_fecha").value;
@@ -121,6 +126,8 @@ function guardarEdicionClase() {
 
     if (!id || !profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
         mostrarToast("Todos los campos obligatorios deben estar completos", "warning");
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         return;
     }
 
@@ -131,6 +138,9 @@ function guardarEdicionClase() {
     })
     .then(response => response.json())
     .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
         if (data.success) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarClase'));
             if (modal) modal.hide();
@@ -139,7 +149,6 @@ function guardarEdicionClase() {
             if (calendarInstancia?.refetchEvents) {
                 calendarInstancia.refetchEvents();
             }
-
             if (typeof cargarPagos === "function") cargarPagos();
 
             mostrarToast("Clase editada correctamente", "success");
@@ -149,9 +158,12 @@ function guardarEdicionClase() {
     })
     .catch(error => {
         console.error("Error:", error);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         mostrarToast("Error de red al guardar cambios", "danger");
     });
 }
+
 
 
 function eliminarClase(id) {
