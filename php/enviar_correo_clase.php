@@ -78,14 +78,16 @@ $contenido_ics .= "END:VCALENDAR\r\n";
 
 $mensajeHTML = "
     <h3>$tituloCorreo</h3>
+    <p style='margin-top:10px;'>❗️ <strong>IMPORTANTE:</strong> Para cancelar o modificar esta clase, comunicate con la escuela de surf por correo a <a href='mailto:escuela@surf.com'>escuela@surf.com</a> o por WhatsApp al <a href='tel:+1234513'>+1234513</a>.</p>
     <p>$mensajeIntro</p>
     <p><strong>Alumno:</strong> $nombre_alumno</p>
     <p><strong>Profesor:</strong> $nombre_profesor</p>
     <p><strong>Fecha:</strong> " . date('d-m-Y', strtotime($fecha_clase)) . "</p>
     <p><strong>Horario:</strong> $hora_inicio a $hora_fin</p>
     <p><strong>Ubicación:</strong> Playa Principal</p>
-    <p style='margin-top:10px;'>❗️ <strong>IMPORTANTE:</strong> Para cancelar o modificar esta clase, comunicate con la escuela de surf por correo a <a href='mailto:escuela@surf.com'>escuela@surf.com</a> o por WhatsApp al <a href='tel:+1234513'>+1234513</a>.</p>
+    <p style='margin-top:20px;'>📲 <em>Para agregar esta clase a tu calendario, abrí el archivo adjunto llamado <strong>clase.ics</strong>.</em></p>
 ";
+
 
 $archivo_ics = tempnam(sys_get_temp_dir(), 'clase_') . '.ics';
 file_put_contents($archivo_ics, $contenido_ics);
