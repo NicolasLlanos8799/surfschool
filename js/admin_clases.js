@@ -45,28 +45,28 @@ function asignarClase() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-    .then(response => response.json())
-    .then(data => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
 
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignarClase'));
-            if (modal) modal.hide();
-            cargarClases();
-            if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
-            if (typeof cargarPagos === "function") cargarPagos();
-            mostrarToast("Clase asignada correctamente", "success");
-        } else {
-            mostrarToast("Error: " + data.message, "danger");
-        }
-    })
-    .catch(error => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        console.error("Error al asignar la clase:", error);
-        mostrarToast("Error al asignar la clase", "danger");
-    });
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalAsignarClase'));
+                if (modal) modal.hide();
+                cargarClases();
+                if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+                if (typeof cargarPagos === "function") cargarPagos();
+                mostrarToast("Clase asignada correctamente", "success");
+            } else {
+                mostrarToast("Error: " + data.message, "danger");
+            }
+        })
+        .catch(error => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            console.error("Error al asignar la clase:", error);
+            mostrarToast("Error al asignar la clase", "danger");
+        });
 }
 
 
@@ -136,32 +136,32 @@ function guardarEdicionClase() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-    .then(response => response.json())
-    .then(data => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
 
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarClase'));
-            if (modal) modal.hide();
+            if (data.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarClase'));
+                if (modal) modal.hide();
 
-            cargarClases();
-            if (calendarInstancia?.refetchEvents) {
-                calendarInstancia.refetchEvents();
+                cargarClases();
+                if (calendarInstancia?.refetchEvents) {
+                    calendarInstancia.refetchEvents();
+                }
+                if (typeof cargarPagos === "function") cargarPagos();
+
+                mostrarToast("Clase editada correctamente", "success");
+            } else {
+                mostrarToast("Error al editar la clase", "danger");
             }
-            if (typeof cargarPagos === "function") cargarPagos();
-
-            mostrarToast("Clase editada correctamente", "success");
-        } else {
-            mostrarToast("Error al editar la clase", "danger");
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        mostrarToast("Error de red al guardar cambios", "danger");
-    });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            mostrarToast("Error de red al guardar cambios", "danger");
+        });
 }
 
 
@@ -246,7 +246,7 @@ function inicializarCalendario() {
         },
 
         // ✅ Al hacer clic en un día: abrir el modal para asignar clase
-        dateClick: function(info) {
+        dateClick: function (info) {
             const fecha = info.dateStr;
 
             // Setear fecha en el modal
@@ -265,13 +265,13 @@ function inicializarCalendario() {
         },
 
         // ✅ Cargar eventos desde PHP y asignar colores únicos
-        events: function(fetchInfo, successCallback, failureCallback) {
+        events: function (fetchInfo, successCallback, failureCallback) {
             fetch('php/listar_clases.php')
                 .then(response => response.json())
                 .then(data => {
                     const profesoresUnicos = [...new Set(data.map(c => c.profesor_nombre))];
                     mostrarLeyendaProfesores(profesoresUnicos);
-        
+
                     const eventos = data.map(clase => {
                         const color = generarColorDesdeTexto(clase.profesor_nombre);
                         return {
@@ -286,11 +286,12 @@ function inicializarCalendario() {
                                 profesor: clase.profesor_nombre,
                                 observaciones: clase.observaciones,
                                 email: clase.email,
-                                telefono: clase.telefono
+                                telefono: clase.telefono,
+                                estado: clase.estado
                             }
                         };
                     });
-        
+
                     successCallback(eventos);
                 })
                 .catch(error => {
@@ -298,41 +299,95 @@ function inicializarCalendario() {
                     failureCallback(error);
                 });
         },
-        
+
 
         // ✅ Click en evento: abrir modal con detalle
-        eventClick: function(info) {
+        eventClick: function (info) {
             const evento = info.event;
-        
+
             document.getElementById('detalleAlumno').textContent = evento.title;
             document.getElementById('detalleProfesor').textContent = evento.extendedProps.profesor;
             document.getElementById('detalleObservaciones').textContent = evento.extendedProps.observaciones?.trim() || 'Sin observaciones';
             document.getElementById('detalleEmail').textContent = evento.extendedProps.email || '—';
             document.getElementById('detalleTelefono').textContent = evento.extendedProps.telefono || '—';
-        
+
             const fechaObj = evento.start;
             const fecha = `${String(fechaObj.getDate()).padStart(2, '0')}-${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${fechaObj.getFullYear()}`;
             const horaInicio = evento.start.toTimeString().slice(0, 5);
             const horaFin = evento.end ? evento.end.toTimeString().slice(0, 5) : "—";
-        
+
             document.getElementById('detalleFecha').textContent = fecha;
             document.getElementById('detalleHorario').textContent = `${horaInicio} - ${horaFin}`;
-        
+
+            const btnCompletada = document.getElementById('btnClaseCompletada');
+
+            // Estilo del botón según el estado de la clase
+            if (evento.extendedProps.estado === 'completada') {
+                btnCompletada.classList.remove("btn-success");
+                btnCompletada.classList.add("btn-success", "opacity-50");
+                btnCompletada.disabled = true;
+                btnCompletada.textContent = "✅ Clase completada";
+
+            } else {
+                btnCompletada.disabled = false;
+                btnCompletada.textContent = "Marcar como Completada";
+                btnCompletada.setAttribute("data-id", evento.id);
+                btnCompletada.classList.remove("btn-secondary", "opacity-50");
+                btnCompletada.classList.add("btn-success");
+            }
+
             document.getElementById('btnEditarClase').onclick = function () {
                 abrirFormularioEdicion(evento.id);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
                 if (modal) modal.hide();
             };
-        
+
             document.getElementById('btnEliminarClase').onclick = function () {
                 eliminarClase(evento.id);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
                 if (modal) modal.hide();
             };
-        
+
             const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
             modal.show();
-        },        
+        }
+
+
+    });
+
+    // ✅ Botón para marcar clase como completada
+    document.getElementById("btnClaseCompletada").addEventListener("click", function () {
+        const claseId = this.getAttribute("data-id");
+
+        if (!claseId) {
+            mostrarToast("No se pudo identificar la clase", "danger");
+            return;
+        }
+
+        fetch("php/marcar_completada.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `id=${claseId}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase"));
+                    if (modalInstance) modalInstance.hide();
+
+                    cargarClases();
+                    if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+                    if (typeof cargarPagos === "function") cargarPagos();
+
+                    mostrarToast("Clase marcada como completada", "success");
+                } else {
+                    mostrarToast("Error: " + data.message, "danger");
+                }
+            })
+            .catch(error => {
+                console.error("Error al marcar clase como completada:", error);
+                mostrarToast("Error al marcar como completada", "danger");
+            });
     });
 
     calendar.render();

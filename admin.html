@@ -157,8 +157,7 @@
             <div id="leyendaProfesores" class="d-flex flex-wrap gap-2 mb-4"></div>
 
             <!-- Modal Detalle de Clase -->
-            <div class="modal fade" id="modalDetalleClase" tabindex="-1" aria-labelledby="modalDetalleClaseLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="modalDetalleClase" data-id-clase="" tabindex="-1" aria-labelledby="modalDetalleClaseLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content bg-dark text-white">
                         <div class="modal-header">
@@ -176,6 +175,7 @@
                             <p><strong>Observaciones:</strong> <span id="detalleObservaciones"></span></p>
                         </div>
                         <div class="modal-footer">
+                            <button id="btnClaseCompletada" class="btn btn-success">Marcar como Completada</button>
                             <button id="btnEditarClase" class="btn btn-warning">Editar</button>
                             <button id="btnEliminarClase" class="btn btn-danger">Eliminar</button>
                             <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -183,6 +183,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Modal para Asignar Clase -->
             <div class="modal fade" id="modalAsignarClase" tabindex="-1" aria-labelledby="modalAsignarClaseLabel"
@@ -311,7 +312,7 @@
             <h3>Gestión de Pagos</h3>
 
             <!-- Tabla de pagos pendientes -->
-            <h4 class="mt-4">Total Estimado (Clases Programadas)</h4>
+            <h4 class="mt-4">Clases Completadas (Total a Pagar)</h4>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -327,15 +328,14 @@
             </table>
 
             <!-- Tabla de pagos realizados -->
-            <h4 class="mt-4">Pagos Generados (Clases Completadas)</h4>
+            <h4 class="mt-4">Pagos Registrados</h4>
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Profesor</th>
                         <th>Horas Trabajadas</th>
-                        <th>Monto a Pagar (€)</th>
-                        <th>Estado</th>
+                        <th>Monto Pagado (€)</th>
+                        <th>Fecha de Pago</th>
                     </tr>
                 </thead>
                 <tbody id="tablaPagosRealizados">
