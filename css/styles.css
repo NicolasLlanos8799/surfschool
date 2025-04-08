@@ -225,3 +225,12 @@ form button {
     height: 1rem;
     border-width: 0.15em;
 }
+
+.pago-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.pago-row:hover {
+    background-color: #f1f1f1 !important;
+}

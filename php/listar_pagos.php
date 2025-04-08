@@ -7,8 +7,8 @@ try {
         SELECT 
             u.id AS profesor_id,
             u.nombre AS profesor_nombre,
-            COALESCE(SUM(TIMESTAMPDIFF(HOUR, c.hora_inicio, c.hora_fin)), 0) AS total_horas,
-            COALESCE(SUM(TIMESTAMPDIFF(HOUR, c.hora_inicio, c.hora_fin) * u.tarifa_hora), 0) AS total,
+            ROUND(SUM(TIMESTAMPDIFF(MINUTE, c.hora_inicio, c.hora_fin)) / 60, 2) AS total_horas,
+            ROUND(SUM((TIMESTAMPDIFF(MINUTE, c.hora_inicio, c.hora_fin) / 60) * u.tarifa_hora), 2) AS total,
             'pendiente' AS estado
         FROM clases c
         JOIN usuarios u ON c.profesor_id = u.id
@@ -20,16 +20,16 @@ try {
 
     // 🔹 2. Pagos ya registrados
     $stmt = $pdo->query("
-        SELECT 
-            p.id,
-            u.nombre AS profesor_nombre,
-            p.total_horas,
-            p.total,
-            p.estado,
-            DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha_pago
-        FROM pagos p
-        JOIN usuarios u ON p.profesor_id = u.id
-        ORDER BY p.fecha_pago DESC
+    SELECT 
+        p.id, 
+        u.nombre AS profesor_nombre, 
+        ROUND(COALESCE(p.total_horas, 0), 2) AS total_horas, 
+        ROUND(COALESCE(p.total, 0), 2) AS total, 
+        p.estado,
+        DATE_FORMAT(p.fecha_pago, '%Y-%m-%d') AS fecha_pago
+    FROM pagos p
+    JOIN usuarios u ON p.profesor_id = u.id
+    ORDER BY p.fecha_pago DESC, p.id DESC
     ");
     $registrados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
