@@ -74,7 +74,7 @@ function mostrarDetallePago(pago) {
                 let fila = `<tr>
                     <td>${formatearFecha(clase.fecha)}</td>
                     <td>${clase.alumno_nombre}</td>
-                    <td>${duracion} h</td>
+                    <td>${duracion} hs</td>
                 </tr>`;
                 tabla.innerHTML += fila;
             });
@@ -144,3 +144,63 @@ function mostrarToast(mensaje, tipo = "success") {
     const toastInstance = new bootstrap.Toast(toast);
     toastInstance.show();
 }
+
+// ========== Generar PDF ==========
+document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Obtener datos del modal
+    const profesor = document.querySelector("#modalPagoProfesor").textContent.trim();
+    const horas = document.querySelector("#modalPagoHoras").textContent.trim();
+    const total = document.querySelector("#modalPagoTotal").textContent.trim();
+    const fechaPago = document.querySelector("#modalPagoFecha").textContent.trim();
+
+    // Fecha actual para el encabezado
+    const hoy = new Date();
+    const fechaHoy = hoy.toLocaleDateString("es-ES"); // Formato dd/mm/aaaa
+    const fechaHoyNombre = hoy.toISOString().split("T")[0].split("-").reverse().join("-"); // dd-mm-aaaa
+
+    // Título
+    doc.setFontSize(16);
+    doc.text(`Comprobante de Pago – ${profesor}`, 20, 20);
+    doc.setFontSize(12);
+
+    // Info principal
+    doc.text(`Profesor: ${profesor}`, 20, 40);
+    doc.text(`Horas Pagadas: ${horas}`, 20, 48);
+    doc.text(`Total: ${total}`, 20, 56);
+    doc.text(`Fecha de Pago: ${fechaPago}`, 20, 64);
+
+    // Tabla de clases
+    const headers = [["Fecha", "Alumno", "Duración (hs)"]];
+    const rows = [];
+
+    document.querySelectorAll("#tablaClasesPagadas tr").forEach(row => {
+        const celdas = row.querySelectorAll("td");
+        if (celdas.length === 3) {
+            rows.push([
+                celdas[0].textContent.trim(),
+                celdas[1].textContent.trim(),
+                celdas[2].textContent.trim()
+            ]);
+        }
+    });
+
+    doc.autoTable({
+        head: headers,
+        body: rows,
+        startY: 75
+    });
+
+    // Pie de página
+    const finalY = doc.lastAutoTable.finalY || 85;
+    doc.setFontSize(10);
+    doc.text("Gracias por tu trabajo. Escuela de Surf Kit", 20, finalY + 20);
+
+    // Descargar
+    doc.save(`comprobante_pago_${profesor}_${fechaHoyNombre}.pdf`);
+});
+
+
+

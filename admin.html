@@ -355,10 +355,10 @@
                                 aria-label="Cerrar"></button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>Profesor:</strong> <span id="modalPagoProfesor"></span></p>
-                            <p><strong>Horas Pagadas:</strong> <span id="modalPagoHoras"></span></p>
-                            <p><strong>Total (€):</strong> <span id="modalPagoTotal"></span></p>
-                            <p><strong>Fecha de Pago:</strong> <span id="modalPagoFecha"></span></p>
+                            <p><strong>Profesor:</strong> <span id="modalPagoProfesor" class="profesor"></span></p>
+                            <p><strong>Horas Pagadas:</strong> <span id="modalPagoHoras" class="horas"></span></p>
+                            <p><strong>Total (€):</strong> <span id="modalPagoTotal" class="total"></span></p>
+                            <p><strong>Fecha de Pago:</strong> <span id="modalPagoFecha" class="fecha"></span></p>
 
                             <hr>
                             <h6>Clases Incluidas</h6>
@@ -376,6 +376,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <button id="btnDescargarPDF" class="btn btn-primary mt-3">Descargar Comprobante</button>
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -383,6 +384,7 @@
                     </div>
                 </div>
             </div>
+
 
 
 
@@ -443,6 +445,11 @@
     <script src="js/admin_profesores.js?v=2.0"></script>
     <script src="js/admin_clases.js?v=2.0"></script>
     <script src="js/admin_pagos.js?v=2.0"></script>
+
+    <!-- PDF Dowload -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 
     <!-- Estilos -->
     <link rel="stylesheet" href="css/styles.css?v=2.0">
