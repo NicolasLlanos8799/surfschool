@@ -12,13 +12,23 @@ function cargarPagos() {
     fetch("php/listar_pagos.php")
         .then(response => response.json())
         .then(data => {
-            const tablaCompletadas = document.getElementById("tablaPagosPendientes");
-            const tablaRegistrados = document.getElementById("tablaPagosRealizados");
+            const tablaCompletadas = document.getElementById("cuerpoTablaPagosPendientes");
+            const tablaRegistrados = document.getElementById("cuerpoTablaPagosRealizados");
 
+
+            // Limpiar las tablas
             tablaCompletadas.innerHTML = "";
             tablaRegistrados.innerHTML = "";
 
-            // Mostrar CLASES COMPLETADAS (total a pagar)
+            // 🔁 Eliminar DataTables si ya están inicializadas
+            if ($.fn.DataTable.isDataTable('#tablaPagosPendientes')) {
+                $('#tablaPagosPendientes').DataTable().destroy();
+            }
+            if ($.fn.DataTable.isDataTable('#tablaPagosRealizados')) {
+                $('#tablaPagosRealizados').DataTable().destroy();
+            }
+
+            // 🔄 CLASES COMPLETADAS (TOTAL A PAGAR)
             data.completadas.forEach(pago => {
                 let fila = `<tr>
                     <td>${pago.profesor_nombre}</td>
@@ -29,7 +39,7 @@ function cargarPagos() {
                 tablaCompletadas.innerHTML += fila;
             });
 
-            // Mostrar PAGOS REGISTRADOS
+            // ✅ PAGOS REGISTRADOS
             data.registrados.forEach(pago => {
                 let fila = document.createElement("tr");
                 fila.classList.add("pago-row");
@@ -43,9 +53,27 @@ function cargarPagos() {
                 fila.addEventListener("click", () => mostrarDetallePago(pago));
                 tablaRegistrados.appendChild(fila);
             });
+
+            // ✅ Inicializar paginación
+            $('#tablaPagosPendientes').DataTable({
+                "pageLength": 10,
+                "lengthChange": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                }
+            });
+
+            $('#tablaPagosRealizados').DataTable({
+                "pageLength": 10,
+                "lengthChange": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                }
+            });
         })
         .catch(error => console.error("Error al cargar los pagos:", error));
 }
+
 
 function mostrarDetallePago(pago) {
     document.getElementById("modalPagoProfesor").textContent = pago.profesor_nombre;

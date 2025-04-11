@@ -314,7 +314,7 @@
 
             <!-- Tabla de pagos pendientes -->
             <h4 class="mt-4">Clases Completadas (Total a Pagar)</h4>
-            <table class="table table-striped">
+            <table id="tablaPagosPendientes" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Profesor</th>
@@ -323,14 +323,14 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody id="tablaPagosPendientes">
+                <tbody id="cuerpoTablaPagosPendientes">
                     <!-- Aquí se cargarán los pagos pendientes -->
                 </tbody>
             </table>
 
             <!-- Tabla de pagos realizados -->
             <h4 class="mt-4">Pagos Registrados</h4>
-            <table class="table table-striped">
+            <table id="tablaPagosRealizados" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Profesor</th>
@@ -339,7 +339,7 @@
                         <th>Fecha de Pago</th>
                     </tr>
                 </thead>
-                <tbody id="tablaPagosRealizados">
+                <tbody id="cuerpoTablaPagosRealizados">
                     <!-- Aquí se cargarán los pagos realizados -->
                 </tbody>
             </table>
@@ -427,8 +427,21 @@
                     }, 10);
                 }
             }
-        };
+
+            if (seccion === 'pagos') {
+                cargarPagos(); // 🟢 Solo se llama cuando se muestra esta sección
+            }
+        }
+
     </script>
+
+    <!-- jQuery (debe ir antes que DataTables y tus scripts) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
 
     <!-- ✅ FullCalendar versión estable que FUNCIONA -->
     <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.4/index.global.min.css" rel="stylesheet" />
