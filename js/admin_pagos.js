@@ -12,38 +12,37 @@ function cargarPagos() {
     fetch("php/listar_pagos.php")
         .then(response => response.json())
         .then(data => {
-            const tablaCompletadas = document.getElementById("cuerpoTablaPagosPendientes");
-            const tablaRegistrados = document.getElementById("cuerpoTablaPagosRealizados");
+            const cuerpoTablaCompletadas = document.getElementById("cuerpoTablaPagosPendientes");
+            const cuerpoTablaRegistrados = document.getElementById("cuerpoTablaPagosRealizados");
 
-
-            // Limpiar las tablas
-            tablaCompletadas.innerHTML = "";
-            tablaRegistrados.innerHTML = "";
-
-            // 🔁 Eliminar DataTables si ya están inicializadas
-            if ($.fn.DataTable.isDataTable('#tablaPagosPendientes')) {
-                $('#tablaPagosPendientes').DataTable().destroy();
-            }
+            // 🔄 Si DataTables ya está inicializado, destruirlo antes
             if ($.fn.DataTable.isDataTable('#tablaPagosRealizados')) {
                 $('#tablaPagosRealizados').DataTable().destroy();
             }
 
-            // 🔄 CLASES COMPLETADAS (TOTAL A PAGAR)
+            if ($.fn.DataTable.isDataTable('#tablaPagosPendientes')) {
+                $('#tablaPagosPendientes').DataTable().destroy();
+            }
+
+            // 🧹 Limpiar las tablas
+            cuerpoTablaCompletadas.innerHTML = "";
+            cuerpoTablaRegistrados.innerHTML = "";
+
+            // 🧾 Insertar clases completadas
             data.completadas.forEach(pago => {
-                let fila = `<tr>
-                    <td>${pago.profesor_nombre}</td>
-                    <td>${pago.total_horas}</td>
-                    <td>€${pago.total}</td>
-                    <td><button class="btn btn-primary btn-sm" onclick="registrarPago('${pago.profesor_nombre}', ${pago.total_horas}, ${pago.total})">Registrar Pago</button></td>
-                </tr>`;
-                tablaCompletadas.innerHTML += fila;
+                cuerpoTablaCompletadas.innerHTML += `
+                    <tr>
+                        <td>${pago.profesor_nombre}</td>
+                        <td>${pago.total_horas}</td>
+                        <td>€${pago.total}</td>
+                        <td><button class="btn btn-primary btn-sm" onclick="registrarPago('${pago.profesor_nombre}', ${pago.total_horas}, ${pago.total})">Registrar Pago</button></td>
+                    </tr>
+                `;
             });
 
-            // ✅ PAGOS REGISTRADOS
+            // 🧾 Insertar pagos registrados
             data.registrados.forEach(pago => {
-                let fila = document.createElement("tr");
-                fila.classList.add("pago-row");
-                fila.style.cursor = "pointer";
+                const fila = document.createElement("tr");
                 fila.innerHTML = `
                     <td>${pago.profesor_nombre}</td>
                     <td>${pago.total_horas}</td>
@@ -51,28 +50,39 @@ function cargarPagos() {
                     <td>${formatearFecha(pago.fecha_pago)}</td>
                 `;
                 fila.addEventListener("click", () => mostrarDetallePago(pago));
-                tablaRegistrados.appendChild(fila);
+                cuerpoTablaRegistrados.appendChild(fila);
             });
 
-            // ✅ Inicializar paginación
+            // ✅ Inicializar DataTables
             $('#tablaPagosPendientes').DataTable({
-                "pageLength": 10,
-                "lengthChange": false,
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                pageLength: 10,
+                lengthChange: false,
+                language: {
+                    search: "Buscar por nombre o monto:",
+                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
                 }
             });
 
             $('#tablaPagosRealizados').DataTable({
-                "pageLength": 10,
-                "lengthChange": false,
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                pageLength: 10,
+                lengthChange: false,
+                order: [[3, 'desc']],
+                columnDefs: [
+                    { type: 'fecha-euro', targets: 3 }
+                ],
+                language: {
+                    search: "Buscar por nombre, fecha o monto:",
+                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
                 }
             });
+            
+            
+            
+            
         })
         .catch(error => console.error("Error al cargar los pagos:", error));
 }
+
 
 
 function mostrarDetallePago(pago) {
