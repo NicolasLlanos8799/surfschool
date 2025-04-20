@@ -173,6 +173,7 @@
                             <p><strong>Horario:</strong> <span id="detalleHorario"></span></p>
                             <p><strong>Correo:</strong> <span id="detalleEmail"></span></p>
                             <p><strong>Teléfono:</strong> <span id="detalleTelefono"></span></p>
+                            <p><strong>Importe Pagado (€):</strong> <span id="detalleImportePagado">—</span></p>
                             <p><strong>Observaciones:</strong> <span id="detalleObservaciones"></span></p>
                         </div>
                         <div class="modal-footer">
@@ -229,6 +230,12 @@
                                         <label for="telefono_alumno" class="form-label">Teléfono del Alumno</label>
                                         <input type="text" id="telefono_alumno" class="form-control">
                                     </div>
+                                    <div class="col-md-6">
+                                        <label for="importePagado" class="form-label">Importe Pagado (€)</label>
+                                        <input type="number" class="form-control" id="importePagado" name="importePagado"
+                                            step="0.01" min="0">
+                                    </div>
+                                    
                                     <div class="col-12">
                                         <label for="observaciones" class="form-label">Observaciones</label>
                                         <textarea id="observaciones" class="form-control" rows="2"></textarea>
@@ -289,6 +296,12 @@
                                         <label for="editar_telefono_alumno" class="form-label">Teléfono del
                                             Alumno</label>
                                         <input type="text" id="editar_telefono_alumno" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="editar_importe_pagado" class="form-label">Importe Pagado (€)</label>
+                                        <input type="number" class="form-control" id="editar_importe_pagado" name="editar_importe_pagado"
+
+                                            step="0.01" min="0">
                                     </div>
                                     <div class="col-12">
                                         <label for="editar_observaciones" class="form-label">Observaciones</label>
@@ -450,7 +463,7 @@
             }
         });
     </script>
-    
+
 
 
     <!-- ✅ FullCalendar versión estable que FUNCIONA -->

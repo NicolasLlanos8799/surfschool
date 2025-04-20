@@ -32,6 +32,7 @@ function asignarClase() {
     const email = document.getElementById("email_alumno").value.trim();
     const telefono = document.getElementById("telefono_alumno").value.trim();
     const observaciones = document.getElementById("observaciones").value.trim();
+    const importePagado = document.getElementById("importePagado").value.trim();
 
     if (!profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
         alert("Todos los campos son obligatorios.");
@@ -43,7 +44,7 @@ function asignarClase() {
     fetch("php/agregar_clase.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
+        body: `profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}&importe_pagado=${encodeURIComponent(importePagado)}`
     })
         .then(response => response.json())
         .then(data => {
@@ -123,6 +124,8 @@ function guardarEdicionClase() {
     const email = document.getElementById("editar_email_alumno").value.trim();
     const telefono = document.getElementById("editar_telefono_alumno").value.trim();
     const observaciones = document.getElementById("editar_observaciones").value.trim();
+    const importePagado = document.getElementById("editar_importe_pagado").value.trim();
+
 
     if (!id || !profesorId || !fecha || !horaInicio || !horaFin || !alumno) {
         mostrarToast("Todos los campos obligatorios deben estar completos", "warning");
@@ -134,7 +137,8 @@ function guardarEdicionClase() {
     fetch("php/editar_clase.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
+        body: `id=${id}&profesor_id=${profesorId}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}&importe_pagado=${encodeURIComponent(importePagado)}`
+
     })
         .then(response => response.json())
         .then(data => {
@@ -287,7 +291,8 @@ function inicializarCalendario() {
                                 observaciones: clase.observaciones,
                                 email: clase.email,
                                 telefono: clase.telefono,
-                                estado: clase.estado
+                                estado: clase.estado,
+                                importe_pagado: clase.importe_pagado 
                             }
                         };
                     });
@@ -310,6 +315,7 @@ function inicializarCalendario() {
             document.getElementById('detalleObservaciones').textContent = evento.extendedProps.observaciones?.trim() || 'Sin observaciones';
             document.getElementById('detalleEmail').textContent = evento.extendedProps.email || '—';
             document.getElementById('detalleTelefono').textContent = evento.extendedProps.telefono || '—';
+            document.getElementById('detalleImportePagado').textContent = evento.extendedProps.importe_pagado || '—';
 
             const fechaObj = evento.start;
             const fecha = `${String(fechaObj.getDate()).padStart(2, '0')}-${String(fechaObj.getMonth() + 1).padStart(2, '0')}-${fechaObj.getFullYear()}`;
@@ -415,6 +421,7 @@ function abrirFormularioEdicion(id) {
             document.getElementById("editar_email_alumno").value = clase.email;
             document.getElementById("editar_telefono_alumno").value = clase.telefono;
             document.getElementById("editar_observaciones").value = clase.observaciones || '';
+            document.getElementById("editar_importe_pagado").value = clase.importe_pagado || '';
 
             cargarListaProfesoresEdicion(clase.profesor_id);
 

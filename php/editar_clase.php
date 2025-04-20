@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $telefono = $_POST['telefono'] ?? '';
     $observaciones = $_POST['observaciones'] ?? '';
+    $importe_pagado = isset($_POST['importe_pagado']) ? floatval(str_replace(',', '.', $_POST['importe_pagado'])) : null;
+
 
     if (empty($id) || empty($profesor_id) || empty($fecha) || empty($hora_inicio) || empty($hora_fin) || empty($alumno)) {
         echo json_encode(['success' => false, 'message' => 'Todos los campos obligatorios deben estar completos']);
@@ -31,18 +33,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Actualizar la clase
     $stmt = $pdo->prepare("
-        UPDATE clases SET 
-            profesor_id = ?, 
-            fecha = ?, 
-            hora_inicio = ?, 
-            hora_fin = ?, 
-            alumno_nombre = ?, 
-            email = ?, 
-            telefono = ?, 
-            observaciones = ?
-        WHERE id = ?
-    ");
-    $stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $email, $telefono, $observaciones, $id]);
+    UPDATE clases SET 
+        profesor_id = ?, 
+        fecha = ?, 
+        hora_inicio = ?, 
+        hora_fin = ?, 
+        alumno_nombre = ?, 
+        email = ?, 
+        telefono = ?, 
+        observaciones = ?, 
+        importe_pagado = ?
+    WHERE id = ?
+");
+$stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $email, $telefono, $observaciones, $importe_pagado, $id]);
+
 
     // Recalcular el pago del profesor después de editar la clase
     $stmt = $pdo->prepare("

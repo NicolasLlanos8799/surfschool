@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $telefono = $_POST['telefono'] ?? '';
     $observaciones = $_POST['observaciones'] ?? '';
+    $importe_pagado = isset($_POST['importe_pagado']) ? floatval($_POST['importe_pagado']) : null;
 
     if (empty($profesor_id) || empty($fecha) || empty($hora_inicio) || empty($hora_fin) || empty($alumno)) {
         echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios']);
@@ -23,10 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $stmt = $pdo->prepare("
-        INSERT INTO clases (profesor_id, fecha, hora_inicio, hora_fin, alumno_nombre, email, telefono, observaciones, estado)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')
-    ");
-    $insercion = $stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $email, $telefono, $observaciones]);
+    INSERT INTO clases (profesor_id, fecha, hora_inicio, hora_fin, alumno_nombre, email, telefono, observaciones, importe_pagado, estado)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')
+");
+$insercion = $stmt->execute([$profesor_id, $fecha, $hora_inicio, $hora_fin, $alumno, $email, $telefono, $observaciones, $importe_pagado]);
+
 
     if ($insercion) {
 

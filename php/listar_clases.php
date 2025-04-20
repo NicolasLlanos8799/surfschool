@@ -18,6 +18,7 @@ try {
             clases.email,
             clases.telefono,
             clases.observaciones,
+            clases.importe_pagado,
             clases.profesor_id,
             clases.estado, -- ✅ ahora sí
             usuarios.nombre AS profesor_nombre 
