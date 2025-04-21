@@ -168,9 +168,7 @@ function guardarEdicionClase() {
         });
 }
 
-
-
-function eliminarClase(id) {
+function eliminarClase(id, callback) {
     if (!confirm("¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.")) {
         return;
     }
@@ -180,21 +178,32 @@ function eliminarClase(id) {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${id}`
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarToast("Clase eliminada correctamente.");
-                cargarClases();
-                if (calendarInstancia && typeof calendarInstancia.refetchEvents === "function") {
-                    calendarInstancia.refetchEvents();
-                }
-                if (typeof cargarPagos === "function") cargarPagos();
-            } else {
-                alert("Error: " + data.message);
-            }
-        })
-        .catch(error => console.error("Error al eliminar la clase:", error));
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarToast("Clase eliminada correctamente.");
+
+            const evento = calendarInstancia.getEventById(id.toString());
+            if (evento) evento.remove();
+
+            cargarClases();
+
+            if (typeof cargarPagos === "function") cargarPagos();
+
+            // ✅ Solo después de que todo se borre, cerramos el modal
+            if (typeof callback === "function") callback();
+
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error al eliminar la clase:", error);
+    });
 }
+
+
+
 
 function cargarListaProfesores() {
     fetch("php/listar_profesores.php")
@@ -279,7 +288,7 @@ function inicializarCalendario() {
                     const eventos = data.map(clase => {
                         const color = generarColorDesdeTexto(clase.profesor_nombre);
                         return {
-                            id: clase.id,
+                            id: clase.id.toString(),
                             title: clase.alumno_nombre,
                             start: `${clase.fecha}T${clase.hora_inicio}`,
                             end: `${clase.fecha}T${clase.hora_fin}`,
@@ -349,10 +358,24 @@ function inicializarCalendario() {
             };
 
             document.getElementById('btnEliminarClase').onclick = function () {
-                eliminarClase(evento.id);
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
-                if (modal) modal.hide();
+                const btn = this;
+                const originalText = btn.innerHTML;
+            
+                // Mostrar spinner y deshabilitar botón
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner-border spinner-sm" role="status" aria-hidden="true"></span> Eliminando...`;
+            
+                eliminarClase(evento.id, function () {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
+                    if (modal) modal.hide();
+            
+                    // Restaurar botón
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
             };
+            
+            
 
             const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
             modal.show();
