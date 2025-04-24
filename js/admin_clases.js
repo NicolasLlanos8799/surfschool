@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
     mostrarSeccion('clases');
 });
 
+// Variables globales para actualizar detalle de facturación
+let anioActualDetalle = null;
+let mesActualDetalle = null;
+
+
 function mostrarFormularioClase() {
     const formulario = document.getElementById("formulario-clase");
 
@@ -154,6 +159,15 @@ function guardarEdicionClase() {
                     calendarInstancia.refetchEvents();
                 }
                 if (typeof cargarPagos === "function") cargarPagos();
+                
+                if (typeof cargarFacturacionMensual === "function") {
+                    cargarFacturacionMensual();
+                }
+                
+                if (anioActualDetalle && mesActualDetalle && typeof verDetalleMes === "function") {
+                    verDetalleMes(anioActualDetalle, mesActualDetalle);
+                }
+                
 
                 mostrarToast("Clase editada correctamente", "success");
             } else {
@@ -190,7 +204,16 @@ function eliminarClase(id, callback) {
 
             if (typeof cargarPagos === "function") cargarPagos();
 
-            // ✅ Solo después de que todo se borre, cerramos el modal
+            // 🔄 ACTUALIZAR FACTURACIÓN
+            if (typeof cargarFacturacionMensual === "function") {
+                cargarFacturacionMensual();
+            }
+
+            // 🔄 ACTUALIZAR DETALLE SI ESTÁ ABIERTO
+            if (anioActualDetalle && mesActualDetalle && typeof verDetalleMes === "function") {
+                verDetalleMes(anioActualDetalle, mesActualDetalle);
+            }
+
             if (typeof callback === "function") callback();
 
         } else {
@@ -201,8 +224,6 @@ function eliminarClase(id, callback) {
         console.error("Error al eliminar la clase:", error);
     });
 }
-
-
 
 
 function cargarListaProfesores() {
