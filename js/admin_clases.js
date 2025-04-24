@@ -407,7 +407,10 @@ function inicializarCalendario() {
                     cargarClases();
                     if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
                     if (typeof cargarPagos === "function") cargarPagos();
-
+                    if (typeof cargarFacturacionMensual === "function") {
+                        cargarFacturacionMensual();
+                    }
+                    
                     mostrarToast("Clase marcada como completada", "success");
                 } else {
                     mostrarToast("Error: " + data.message, "danger");

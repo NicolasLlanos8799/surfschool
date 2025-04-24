@@ -27,6 +27,9 @@
                     <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('clases')">Gestión de Clases</a>
                     </li>
                     <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('pagos')">Gestión de Pagos</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="mostrarSeccion('seccionFacturacion')">Facturación</a>
+                      </li>                      
                     <li class="nav-item"><a class="nav-link text-danger" href="login.html">Cerrar Sesión</a></li>
                 </ul>
             </div>
@@ -232,10 +235,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="importePagado" class="form-label">Importe Pagado (€)</label>
-                                        <input type="number" class="form-control" id="importePagado" name="importePagado"
-                                            step="0.01" min="0">
+                                        <input type="number" class="form-control" id="importePagado"
+                                            name="importePagado" step="0.01" min="0">
                                     </div>
-                                    
+
                                     <div class="col-12">
                                         <label for="observaciones" class="form-label">Observaciones</label>
                                         <textarea id="observaciones" class="form-control" rows="2"></textarea>
@@ -299,9 +302,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label for="editar_importe_pagado" class="form-label">Importe Pagado (€)</label>
-                                        <input type="number" class="form-control" id="editar_importe_pagado" name="editar_importe_pagado"
-
-                                            step="0.01" min="0">
+                                        <input type="number" class="form-control" id="editar_importe_pagado"
+                                            name="editar_importe_pagado" step="0.01" min="0">
                                     </div>
                                     <div class="col-12">
                                         <label for="editar_observaciones" class="form-label">Observaciones</label>
@@ -403,6 +405,74 @@
 
         </div>
 
+        <!-- 🟩 Tabla Resumen Mensual -->
+        <section id="seccionFacturacion" class="seccion container mt-4" style="display: none;">
+            <h3>Facturación Mensual</h3>
+            <table class="table table-striped" id="tablaFacturacion">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Año</th>
+                        <th>Total Facturado</th>
+                        <th>Ver Detalle</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyFacturacion">
+                    <!-- Se carga con JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 🟦 Modal Detalle del Mes -->
+        <div class="modal fade" id="modalDetalleFacturacion" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloDetalleFacturacion">Detalle de Facturación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- 🔎 Filtro -->
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="filtroDetalle"
+                                placeholder="Filtrar por nombre, fecha o monto">
+                        </div>
+
+                        <!-- 📋 Tabla de Detalle -->
+                        <table class="table table-bordered" id="tablaDetalleMes">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Profesor</th>
+                                    <th>Alumno</th>
+                                    <th>Importe Pagado</th>
+                                    <th>Importe al Profesor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyDetalleMes">
+                                <!-- Se carga con JS -->
+                            </tbody>
+                        </table>
+                        <div class="mt-4 border-top pt-3 text-end">
+                            <p><strong>Total Facturado:</strong> € <span id="totalFacturadoMes">—</span></p>
+                            <p><strong>Importe a Profesores:</strong> € <span id="totalProfesoresMes">—</span></p>
+                            <h5 class="text-success"><strong>Ganancia Neta:</strong> € <span id="gananciaMes">—</span></h5>
+                        </div>
+                        
+
+                        <!-- 📤 Exportar -->
+                        <div class="text-end mt-3">
+                            <button class="btn btn-success" id="btnExportExcel">📗 Exportar a Excel</button>
+                            <button class="btn btn-danger" id="btnExportPDF">📕 Exportar a PDF</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 
     <!-- Toast reutilizable -->
@@ -481,10 +551,18 @@
     <script src="js/admin_profesores.js?v=2.0"></script>
     <script src="js/admin_clases.js?v=2.0"></script>
     <script src="js/admin_pagos.js?v=2.0"></script>
+    <script src="js/admin_facturacion.js?v=1.0"></script>
 
     <!-- PDF Dowload -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- SheetJS para Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <!-- jsPDF y AutoTable para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 
     <!-- Estilos -->
