@@ -29,7 +29,7 @@
                     <li class="nav-item"><a class="nav-link" onclick="mostrarSeccion('pagos')">Gestión de Pagos</a></li>
                     <li class="nav-item">
                         <a class="nav-link" onclick="mostrarSeccion('seccionFacturacion')">Facturación</a>
-                      </li>                      
+                    </li>
                     <li class="nav-item"><a class="nav-link text-danger" href="login.html">Cerrar Sesión</a></li>
                 </ul>
             </div>
@@ -440,31 +440,34 @@
                         </div>
 
                         <!-- 📋 Tabla de Detalle -->
-                        <table class="table table-bordered" id="tablaDetalleMes">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Profesor</th>
-                                    <th>Alumno</th>
-                                    <th>Importe Pagado</th>
-                                    <th>Importe al Profesor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyDetalleMes">
-                                <!-- Se carga con JS -->
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="tablaDetalleMes">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Profesor</th>
+                                        <th>Alumno</th>
+                                        <th>Importe Pagado</th>
+                                        <th>Importe al Profesor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyDetalleMes">
+                                    <!-- Se carga con JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
                         <div class="mt-4 border-top pt-3 text-end">
                             <p><strong>Total Facturado:</strong> € <span id="totalFacturadoMes">—</span></p>
                             <p><strong>Importe a Profesores:</strong> € <span id="totalProfesoresMes">—</span></p>
-                            <h5 class="text-success"><strong>Ganancia Neta:</strong> € <span id="gananciaMes">—</span></h5>
+                            <h5 class="text-success"><strong>Ganancia Neta:</strong> € <span id="gananciaMes">—</span>
+                            </h5>
                         </div>
-                        
 
                         <!-- 📤 Exportar -->
-                        <div class="text-end mt-3">
-                            <button class="btn btn-success" id="btnExportExcel">📗 Exportar a Excel</button>
-                            <button class="btn btn-danger" id="btnExportPDF">📕 Exportar a PDF</button>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                            <button class="btn btn-success px-4" id="btnExportExcel">📗 Exportar a Excel</button>
+                            <button class="btn btn-danger px-4" id="btnExportPDF">📕 Exportar a PDF</button>
                         </div>
 
                     </div>
