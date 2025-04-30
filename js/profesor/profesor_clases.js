@@ -1,4 +1,9 @@
-// ✅ Inicializa el calendario para el profesor
+// profesor_clases.js
+
+document.addEventListener("DOMContentLoaded", function () {
+    mostrarSeccion('clases');
+});
+
 function inicializarCalendario() {
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -10,14 +15,11 @@ function inicializarCalendario() {
             right: 'timeGridWeek,dayGridMonth,listWeek'
         },
         events: {
-            url: 'php/profesor/obtener_clases_profesor.php', // 🛠️ Creamos este PHP para devolver SOLO sus clases
+            url: 'php/profesor/obtener_clases_profesor.php',
             method: 'POST'
         },
         eventClick: function (info) {
             abrirModalDetalleClase(info.event);
-        },
-        dateClick: function (info) {
-            abrirModalAsignarClase(info.dateStr);
         }
     });
 
@@ -25,7 +27,6 @@ function inicializarCalendario() {
     return calendar;
 }
 
-// ✅ Abre el modal de detalle de la clase
 function abrirModalDetalleClase(evento) {
     const datos = evento.extendedProps;
 
@@ -37,121 +38,96 @@ function abrirModalDetalleClase(evento) {
     document.getElementById('detalleObservaciones').innerText = datos.observaciones || 'Sin observaciones';
 
     const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
-    document.getElementById('modalDetalleClase').dataset.idClase = evento.id; // Guardamos el ID para acciones
-    document.getElementById('btnClaseCompletada').onclick = marcarClaseComoCompletada;
+    document.getElementById('modalDetalleClase').dataset.idClase = evento.id;
+
+    const btnCompletada = document.getElementById('btnClaseCompletada');
+
+// Estado visual del botón según estado de la clase
+if (datos.estado === 'completada') {
+    btnCompletada.classList.remove("btn-success");
+    btnCompletada.classList.add("btn-success", "opacity-50");
+    btnCompletada.disabled = true;
+    btnCompletada.textContent = "✅ Clase completada";
+} else {
+    btnCompletada.disabled = false;
+    btnCompletada.textContent = "Marcar como Completada";
+    btnCompletada.classList.remove("btn-secondary", "opacity-50");
+    btnCompletada.classList.add("btn-success");
+    btnCompletada.onclick = marcarClaseComoCompletada;
+}
+
     document.getElementById('btnEditarClase').onclick = abrirFormularioEdicionClaseProfesor;
     document.getElementById('btnEliminarClase').onclick = eliminarClaseProfesor;
 
     modal.show();
 }
 
-// ✅ Función para abrir modal para asignar nueva clase
-function abrirModalAsignarClase(fecha) {
-    document.getElementById('formAsignarClase').reset();
-    document.getElementById('fecha').value = fecha.split('T')[0]; // Solo fecha, no hora
-    const modal = new bootstrap.Modal(document.getElementById('modalAsignarClase'));
-    modal.show();
-}
-
-// 🟢 Marcar clase como completada
 function marcarClaseComoCompletada() {
+    const btn = document.getElementById("btnClaseCompletada");
     const claseId = document.getElementById('modalDetalleClase').dataset.idClase;
 
-    if (!claseId) {
-        mostrarToast("No se pudo identificar la clase", "danger");
-        return;
-    }
+    if (!claseId) return mostrarToast("Clase no identificada", "danger");
+
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status"></span> Guardando...`;
 
     fetch("php/marcar_completada.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${claseId}`
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            const modalInstance = bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase"));
-            if (modalInstance) modalInstance.hide();
+        btn.disabled = false;
+        btn.innerHTML = originalText;
 
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase")).hide();
             if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
-            mostrarToast("Clase marcada como completada", "success");
+            mostrarToast("Clase completada con éxito", "success");
         } else {
             mostrarToast("Error: " + data.message, "danger");
         }
     })
-    .catch(error => {
-        console.error("Error:", error);
-        mostrarToast("Error de red al marcar como completada", "danger");
+    .catch(err => {
+        console.error("Error:", err);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        mostrarToast("Error al marcar como completada", "danger");
     });
 }
 
-// 🟡 Abre el modal para editar la clase
 function abrirFormularioEdicionClaseProfesor() {
     const claseId = document.getElementById('modalDetalleClase').dataset.idClase;
 
     fetch('php/listar_clases.php')
-    .then(response => response.json())
-    .then(data => {
-        const clase = data.find(c => c.id == claseId);
-        if (!clase) {
-            mostrarToast("Clase no encontrada", "danger");
-            return;
-        }
+        .then(res => res.json())
+        .then(data => {
+            const clase = data.find(c => c.id == claseId);
+            if (!clase) return mostrarToast("Clase no encontrada", "danger");
 
-        // Llenar el formulario de edición
-        document.getElementById("clase_id").value = clase.id;
-        document.getElementById("editar_fecha").value = clase.fecha;
-        document.getElementById("editar_hora_inicio").value = clase.hora_inicio;
-        document.getElementById("editar_hora_fin").value = clase.hora_fin;
-        document.getElementById("editar_alumno").value = clase.alumno_nombre;
-        document.getElementById("editar_email_alumno").value = clase.email;
-        document.getElementById("editar_telefono_alumno").value = clase.telefono;
-        document.getElementById("editar_observaciones").value = clase.observaciones || '';
+            document.getElementById("clase_id").value = clase.id;
+            document.getElementById("editar_fecha").value = clase.fecha;
+            document.getElementById("editar_hora_inicio").value = clase.hora_inicio;
+            document.getElementById("editar_hora_fin").value = clase.hora_fin;
+            document.getElementById("editar_alumno").value = clase.alumno_nombre;
+            document.getElementById("editar_email_alumno").value = clase.email;
+            document.getElementById("editar_telefono_alumno").value = clase.telefono;
+            document.getElementById("editar_observaciones").value = clase.observaciones || '';
 
-        // No cargamos lista de profesores (no puede cambiar el profesor)
+            bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase")).hide();
 
-        const modal = new bootstrap.Modal(document.getElementById('modalEditarClase'));
-        modal.show();
-    });
+            const modal = new bootstrap.Modal(document.getElementById('modalEditarClase'));
+            modal.show();
+        });
 }
 
-// 🔴 Eliminar clase
-function eliminarClaseProfesor() {
-    const claseId = document.getElementById('modalDetalleClase').dataset.idClase;
-
-    if (!confirm("¿Estás seguro de que deseas eliminar esta clase?")) {
-        return;
-    }
-
-    fetch("php/eliminar_clase.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `id=${claseId}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modalInstance = bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase"));
-            if (modalInstance) modalInstance.hide();
-
-            if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
-            mostrarToast("Clase eliminada correctamente", "success");
-        } else {
-            mostrarToast("Error: " + data.message, "danger");
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        mostrarToast("Error al eliminar la clase", "danger");
-    });
-}
-
-// ✏️ Guardar cambios de la clase editada (profesor)
 function guardarEdicionClaseProfesor() {
     const btn = document.getElementById("btnGuardarEdicion");
     btn.disabled = true;
     const originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status" aria-hidden="true"></span> Guardando...`;
+    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status"></span> Guardando...`;
 
     const id = document.getElementById("clase_id").value;
     const fecha = document.getElementById("editar_fecha").value;
@@ -174,25 +150,69 @@ function guardarEdicionClaseProfesor() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `id=${id}&fecha=${fecha}&hora_inicio=${horaInicio}&hora_fin=${horaFin}&alumno=${encodeURIComponent(alumno)}&email=${encodeURIComponent(email)}&telefono=${encodeURIComponent(telefono)}&observaciones=${encodeURIComponent(observaciones)}`
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
         btn.disabled = false;
         btn.innerHTML = originalText;
 
         if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarClase'));
-            if (modal) modal.hide();
-
+            bootstrap.Modal.getInstance(document.getElementById("modalEditarClase")).hide();
             if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
-            mostrarToast("Clase actualizada correctamente", "success");
+            mostrarToast("Clase editada correctamente", "success");
         } else {
             mostrarToast("Error al actualizar la clase", "danger");
         }
     })
-    .catch(error => {
-        console.error("Error:", error);
+    .catch(err => {
+        console.error("Error:", err);
         btn.disabled = false;
         btn.innerHTML = originalText;
-        mostrarToast("Error de red al guardar cambios", "danger");
+        mostrarToast("Error de red", "danger");
     });
+}
+
+function eliminarClaseProfesor() {
+    const claseId = document.getElementById('modalDetalleClase').dataset.idClase;
+    const btn = document.getElementById("btnEliminarClase");
+
+    if (!confirm("¿Eliminar esta clase?")) return;
+
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-sm" role="status"></span> Eliminando...`;
+
+    fetch("php/eliminar_clase.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id=${claseId}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase")).hide();
+            if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+            mostrarToast("Clase eliminada correctamente", "success");
+        } else {
+            mostrarToast("Error al eliminar clase", "danger");
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        mostrarToast("Error de red al eliminar", "danger");
+    });
+}
+
+function mostrarToast(mensaje, tipo = "success") {
+    const toast = document.getElementById("toastGeneral");
+    const toastBody = document.getElementById("toastMensaje");
+
+    toastBody.textContent = mensaje;
+    toast.className = "toast align-items-center text-white bg-" + tipo + " border-0";
+
+    new bootstrap.Toast(toast).show();
 }
