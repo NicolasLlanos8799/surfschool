@@ -97,7 +97,7 @@ function verDetallePagoProfesor(idPago) {
 
 function formatearFecha(fechaISO) {
     const [anio, mes, dia] = fechaISO.split("-");
-    return `${dia}-${mes}-${anio}`;
+    return `${dia}/${mes}/${anio}`;
 }
 
 
