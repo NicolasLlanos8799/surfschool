@@ -180,7 +180,7 @@
         </div>
 
         <div id="seccionPagos" class="seccion" style="display: none;">
-            <h4>Clases Completadas (Total a Pagar)</h4>
+            <h4>Total a Cobrar por Clases Completadas</h4>
             <div id="contenedorClasesCompletadas" class="mb-4"></div>
 
             <h4>Pagos Registrados</h4>
@@ -189,8 +189,7 @@
                     <tr>
                         <th>Fecha de Pago</th>
                         <th>Horas trabajadas</th>
-                        <th>Total pagado</th>
-                        <th>Estado</th>
+                        <th>Total cobrado</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -222,6 +221,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Detalle de Clases Pagadas del Profesor -->
+<div class="modal fade" id="modalDetallePagoProfesor" tabindex="-1" aria-labelledby="detallePagoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content bg-dark text-white border-0">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="detallePagoLabel">Detalle del Pago</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-dark table-striped table-bordered text-center mb-0">
+              <thead class="table-primary text-dark">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Alumno</th>
+                  <th>Duración</th>
+                  <th>Importe</th>
+                </tr>
+              </thead>
+              <tbody id="tablaDetallePagoProfesor">
+                <!-- Se insertan dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+  
+          <button id="btnDescargarComprobanteProfesor" class="btn btn-primary mt-3">Descargar Comprobante</button>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
 
 
     <!-- Toast reutilizable -->
@@ -294,6 +329,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/profesor/profesor_clases.js"></script>
     <script src="js/profesor/profesor_pagos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 
 
     <!-- Estilos -->
