@@ -36,7 +36,7 @@ function mostrarError(mensaje, error) {
 
 function formatearFecha(fechaStr) {
     const fecha = new Date(fechaStr);
-    return fecha.toLocaleDateString('es-ES');
+    return `${String(fecha.getDate()).padStart(2, '0')}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${fecha.getFullYear()}`;
 }
 
 function capitalizar(str) {

@@ -8,36 +8,35 @@ document.addEventListener("DOMContentLoaded", function () {
     cargarPagos();
 });
 
+let tablaPendientes = null;
+let tablaRealizados = null;
+
 function cargarPagos() {
+    const contenedor = document.getElementById("seccionPagos");
+    if (contenedor) contenedor.style.visibility = "hidden";
+
     fetch("php/listar_pagos.php")
         .then(response => response.json())
         .then(data => {
             const cuerpoTablaCompletadas = document.getElementById("cuerpoTablaPagosPendientes");
             const cuerpoTablaRegistrados = document.getElementById("cuerpoTablaPagosRealizados");
 
-            // 🔄 Si DataTables ya está inicializado, destruirlo antes
-            if ($.fn.DataTable.isDataTable('#tablaPagosRealizados')) {
-                $('#tablaPagosRealizados').DataTable().destroy();
-            }
+            if (!cuerpoTablaCompletadas || !cuerpoTablaRegistrados) return;
 
-            if ($.fn.DataTable.isDataTable('#tablaPagosPendientes')) {
-                $('#tablaPagosPendientes').DataTable().destroy();
-            }
-
-            // 🧹 Limpiar las tablas
+            // 🧹 Limpiar contenido HTML
             cuerpoTablaCompletadas.innerHTML = "";
             cuerpoTablaRegistrados.innerHTML = "";
 
             // 🧾 Insertar clases completadas
             data.completadas.forEach(pago => {
-                cuerpoTablaCompletadas.innerHTML += `
-                    <tr>
-                        <td>${pago.profesor_nombre}</td>
-                        <td>${pago.total_horas}</td>
-                        <td>€${pago.total}</td>
-                        <td><button class="btn btn-primary btn-sm" onclick="registrarPago('${pago.profesor_nombre}', ${pago.total_horas}, ${pago.total})">Registrar Pago</button></td>
-                    </tr>
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${pago.profesor_nombre}</td>
+                    <td>${pago.total_horas}</td>
+                    <td>€${pago.total}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="registrarPago('${pago.profesor_nombre}', ${pago.total_horas}, ${pago.total})">Registrar Pago</button></td>
                 `;
+                cuerpoTablaCompletadas.appendChild(fila);
             });
 
             // 🧾 Insertar pagos registrados
@@ -53,35 +52,51 @@ function cargarPagos() {
                 cuerpoTablaRegistrados.appendChild(fila);
             });
 
-            // ✅ Inicializar DataTables
-            $('#tablaPagosPendientes').DataTable({
-                pageLength: 10,
-                lengthChange: false,
-                language: {
-                    search: "Buscar por nombre o monto:",
-                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-                }
-            });
+            // ✅ Inicializar o actualizar DataTables
+            if (!tablaPendientes) {
+                tablaPendientes = $('#tablaPagosPendientes').DataTable({
+                    pageLength: 10,
+                    lengthChange: false,
+                    language: {
+                        search: "Buscar por nombre o monto:",
+                        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                    }
+                });
+            } else {
+                tablaPendientes.clear().draw();
+                $('#cuerpoTablaPagosPendientes tr').each(function () {
+                    tablaPendientes.row.add(this).draw(false);
+                });
+            }
 
-            $('#tablaPagosRealizados').DataTable({
-                pageLength: 10,
-                lengthChange: false,
-                order: [[3, 'desc']],
-                columnDefs: [
-                    { type: 'fecha-euro', targets: 3 }
-                ],
-                language: {
-                    search: "Buscar por nombre, fecha o monto:",
-                    url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-                }
-            });
-            
-            
-            
-            
+            if (!tablaRealizados) {
+                tablaRealizados = $('#tablaPagosRealizados').DataTable({
+                    pageLength: 10,
+                    lengthChange: false,
+                    order: [[3, 'desc']],
+                    columnDefs: [
+                        { type: 'fecha-guion', targets: 3 }
+                    ],
+                    language: {
+                        search: "Buscar por nombre, fecha o monto:",
+                        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                    }
+                });
+            } else {
+                tablaRealizados.clear().draw();
+                $('#cuerpoTablaPagosRealizados tr').each(function () {
+                    tablaRealizados.row.add(this).draw(false);
+                });
+            }
+
+            if (contenedor) contenedor.style.visibility = "visible";
         })
-        .catch(error => console.error("Error al cargar los pagos:", error));
+        .catch(error => {
+            console.error("Error al cargar los pagos:", error);
+            if (contenedor) contenedor.style.visibility = "visible";
+        });
 }
+
 
 
 
@@ -182,6 +197,15 @@ function mostrarToast(mensaje, tipo = "success") {
     const toastInstance = new bootstrap.Toast(toast);
     toastInstance.show();
 }
+
+jQuery.extend(jQuery.fn.dataTable.ext.type.order, {
+    "fecha-guion-pre": function (fecha) {
+        // Espera formato dd-mm-aaaa
+        const partes = fecha.split("-");
+        return new Date(`${partes[2]}-${partes[1]}-${partes[0]}`).getTime();
+    }
+});
+
 
 // ========== Generar PDF ==========
 document.getElementById("btnDescargarPDF").addEventListener("click", function () {

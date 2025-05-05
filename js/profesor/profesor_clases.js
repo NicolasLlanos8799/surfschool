@@ -29,10 +29,12 @@ function inicializarCalendario() {
 
 function abrirModalDetalleClase(evento) {
     const datos = evento.extendedProps;
+    const fecha = evento.start;
+    const fechaFormateada = `${String(fecha.getDate()).padStart(2, '0')}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${fecha.getFullYear()}`;
 
     document.getElementById('detalleAlumno').innerText = datos.alumno;
-    document.getElementById('detalleFecha').innerText = evento.start.toLocaleDateString();
-    document.getElementById('detalleHorario').innerText = `${evento.start.toLocaleTimeString()} - ${evento.end.toLocaleTimeString()}`;
+    document.getElementById('detalleFecha').innerText = fechaFormateada;
+    document.getElementById('detalleHorario').innerText = `${evento.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${evento.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     document.getElementById('detalleEmail').innerText = datos.email || '-';
     document.getElementById('detalleTelefono').innerText = datos.telefono || '-';
     document.getElementById('detalleObservaciones').innerText = datos.observaciones || 'Sin observaciones';
@@ -85,6 +87,7 @@ function marcarClaseComoCompletada() {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase")).hide();
             if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+            if (typeof cargarPagosProfesor === "function") cargarPagosProfesor(); // 👈 Esta es la línea nueva
             mostrarToast("Clase completada con éxito", "success");
         } else {
             mostrarToast("Error: " + data.message, "danger");
@@ -97,6 +100,7 @@ function marcarClaseComoCompletada() {
         mostrarToast("Error al marcar como completada", "danger");
     });
 }
+
 
 function abrirFormularioEdicionClaseProfesor() {
     const claseId = document.getElementById('modalDetalleClase').dataset.idClase;

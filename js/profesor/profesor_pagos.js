@@ -94,9 +94,7 @@ function verDetallePagoProfesor(idPago) {
                 cuerpo.innerHTML = `<tr><td colspan="4" class="text-center">Sin clases asociadas.</td></tr>`;
             } else {
                 data.forEach(clase => {
-                    const fecha = new Date(clase.fecha);
-                    const fechaFormateada = `${String(fecha.getDate()).padStart(2, '0')}/${String(fecha.getMonth() + 1).padStart(2, '0')}/${fecha.getFullYear()}`;
-
+                    const fechaFormateada = formatearFecha(clase.fecha);
                     const fila = `
                         <tr>
                             <td>${fechaFormateada}</td>
@@ -121,7 +119,7 @@ function verDetallePagoProfesor(idPago) {
 
 function formatearFecha(fechaISO) {
     const [anio, mes, dia] = fechaISO.split("-");
-    return `${dia}/${mes}/${anio}`;
+    return `${dia}-${mes}-${anio}`;
 }
 
 
