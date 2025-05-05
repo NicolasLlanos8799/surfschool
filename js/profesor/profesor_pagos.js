@@ -60,6 +60,25 @@ function mostrarPagosRegistrados(pagos) {
         fila.addEventListener("click", () => verDetallePagoProfesor(pago.id));
         cuerpo.appendChild(fila);
     });
+
+    // Inicializar DataTables
+if ($.fn.DataTable.isDataTable('#tablaPagosRegistrados')) {
+    $('#tablaPagosRegistrados').DataTable().destroy();
+}
+
+$('#tablaPagosRegistrados').DataTable({
+    pageLength: 10,
+    lengthChange: false,
+    order: [[0, 'desc']], // Ordenar por la columna de fecha (índice 0)
+    columnDefs: [
+        { type: 'fecha-euro', targets: 0 }
+    ],
+    language: {
+        search: "Buscar por fecha o monto:",
+        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+    }
+});
+
 }
 
 function verDetallePagoProfesor(idPago) {
