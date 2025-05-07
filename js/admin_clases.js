@@ -270,20 +270,33 @@ function cargarListaProfesoresEdicion(profesorSeleccionado) {
 
 function inicializarCalendario() {
     const calendarEl = document.getElementById('calendar');
+    const esPantallaChica = window.innerWidth <= 400;
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek'
+        headerToolbar: esPantallaChica
+            ? {
+                left: 'prev,next',
+                center: 'title',
+                right: 'listWeek'
+            }
+            : {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek'
+            },
+        dayMaxEvents: true,
+        aspectRatio: esPantallaChica ? 0.75 : 1.35,
+        viewDidMount: function (arg) {
+            const titulo = arg.view.title;
+            const capitalizado = titulo.charAt(0).toUpperCase() + titulo.slice(1);
+            document.querySelector('.fc-toolbar-title').textContent = capitalizado;
         },
 
-        // ✅ Al hacer clic en un día: abrir el modal para asignar clase
         dateClick: function (info) {
             const fecha = info.dateStr;
 
-            // Setear fecha en el modal
             document.getElementById("fecha").value = fecha;
             document.getElementById("hora_inicio").value = '';
             document.getElementById("hora_fin").value = '';
@@ -298,7 +311,6 @@ function inicializarCalendario() {
             modal.show();
         },
 
-        // ✅ Cargar eventos desde PHP y asignar colores únicos
         events: function (fetchInfo, successCallback, failureCallback) {
             fetch('php/listar_clases.php')
                 .then(response => response.json())
@@ -322,7 +334,7 @@ function inicializarCalendario() {
                                 email: clase.email,
                                 telefono: clase.telefono,
                                 estado: clase.estado,
-                                importe_pagado: clase.importe_pagado 
+                                importe_pagado: clase.importe_pagado
                             }
                         };
                     });
@@ -335,8 +347,6 @@ function inicializarCalendario() {
                 });
         },
 
-
-        // ✅ Click en evento: abrir modal con detalle
         eventClick: function (info) {
             const evento = info.event;
 
@@ -357,13 +367,11 @@ function inicializarCalendario() {
 
             const btnCompletada = document.getElementById('btnClaseCompletada');
 
-            // Estilo del botón según el estado de la clase
             if (evento.extendedProps.estado === 'completada') {
                 btnCompletada.classList.remove("btn-success");
                 btnCompletada.classList.add("btn-success", "opacity-50");
                 btnCompletada.disabled = true;
                 btnCompletada.textContent = "✅ Clase completada";
-
             } else {
                 btnCompletada.disabled = false;
                 btnCompletada.textContent = "Marcar como Completada";
@@ -381,31 +389,25 @@ function inicializarCalendario() {
             document.getElementById('btnEliminarClase').onclick = function () {
                 const btn = this;
                 const originalText = btn.innerHTML;
-            
-                // Mostrar spinner y deshabilitar botón
+
                 btn.disabled = true;
                 btn.innerHTML = `<span class="spinner-border spinner-sm" role="status" aria-hidden="true"></span> Eliminando...`;
-            
+
                 eliminarClase(evento.id, function () {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('modalDetalleClase'));
                     if (modal) modal.hide();
-            
-                    // Restaurar botón
+
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                 });
             };
-            
-            
 
             const modal = new bootstrap.Modal(document.getElementById('modalDetalleClase'));
             modal.show();
         }
-
-
     });
 
-    // ✅ Botón para marcar clase como completada
+    // Marcar clase como completada
     document.getElementById("btnClaseCompletada").addEventListener("click", function () {
         const claseId = this.getAttribute("data-id");
 
@@ -419,33 +421,32 @@ function inicializarCalendario() {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `id=${claseId}`
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modalInstance = bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase"));
-                    if (modalInstance) modalInstance.hide();
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modalInstance = bootstrap.Modal.getInstance(document.getElementById("modalDetalleClase"));
+                if (modalInstance) modalInstance.hide();
 
-                    cargarClases();
-                    if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
-                    if (typeof cargarPagos === "function") cargarPagos();
-                    if (typeof cargarFacturacionMensual === "function") {
-                        cargarFacturacionMensual();
-                    }
-                    
-                    mostrarToast("Clase marcada como completada", "success");
-                } else {
-                    mostrarToast("Error: " + data.message, "danger");
-                }
-            })
-            .catch(error => {
-                console.error("Error al marcar clase como completada:", error);
-                mostrarToast("Error al marcar como completada", "danger");
-            });
+                cargarClases();
+                if (calendarInstancia?.refetchEvents) calendarInstancia.refetchEvents();
+                if (typeof cargarPagos === "function") cargarPagos();
+                if (typeof cargarFacturacionMensual === "function") cargarFacturacionMensual();
+
+                mostrarToast("Clase marcada como completada", "success");
+            } else {
+                mostrarToast("Error: " + data.message, "danger");
+            }
+        })
+        .catch(error => {
+            console.error("Error al marcar clase como completada:", error);
+            mostrarToast("Error al marcar como completada", "danger");
+        });
     });
 
     calendar.render();
     return calendar;
 }
+
 
 
 

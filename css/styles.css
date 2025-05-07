@@ -283,3 +283,95 @@ form button {
     }
 }
 
+
+/* ====================================================
+   RESPONSIVE PARA PANTALLAS MUY PEQUEÑAS (IPHONE SE)
+==================================================== */
+@media (max-width: 400px) {
+    /* Encabezado y títulos */
+    .fc-toolbar-title {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    /* Botones de navegación y vista: mejor espaciado */
+    .fc-toolbar-chunk {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.3rem;
+    }
+
+    .fc-button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        align-items: center;
+    }
+
+    /* Botones individuales más grandes y legibles */
+    .fc-button {
+        font-size: 0.7rem;
+        padding: 0.4em 0.6em;
+    }
+
+    /* Eventos dentro del calendario: compactos y alineados */
+    .fc-daygrid-event {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 1px;          /* menos espacio lateral */
+        margin: 0;
+        font-size: 0.55rem;      /* fuente más chica aún */
+        gap: 2px;                /* separación entre punto y hora */
+    }
+
+    .fc-daygrid-event-dot {
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;   /* 👈 asegura que sea perfectamente redondo */
+    margin-right: 2px;
+    margin-left: 0;
+    }
+
+
+    .fc-daygrid-dot-event .fc-event-time {
+        font-size: 0.70rem;      /* acompaña al punto */
+        margin-left: 0;          /* que quede alineado justo al lado del punto */
+    }
+
+    .fc-daygrid-day-frame {
+        padding-left: 2px;       /* para que todo comience más a la izquierda */
+        padding-right: 2px;
+    }
+
+
+    /* Ocultar leyenda de colores */
+    .fc-legend,
+    .leyenda-profesores {
+        display: none;
+    }
+
+    /* Ajustes generales */
+    .seccion,
+    #calendar {
+        padding: 8px;
+    }
+
+    .container {
+        padding: 8px;
+    }
+
+    h1, h2, h3 {
+        font-size: 1rem;
+    }
+
+    .btn {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+
+    .fc-toolbar-title {
+        text-transform: capitalize;
+    }
+    
+}

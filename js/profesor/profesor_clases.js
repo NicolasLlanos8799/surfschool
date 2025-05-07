@@ -20,6 +20,11 @@ function inicializarCalendario() {
         },
         eventClick: function (info) {
             abrirModalDetalleClase(info.event);
+        },
+        viewDidMount: function (arg) {
+            const titulo = arg.view.title;
+            const capitalizado = titulo.charAt(0).toUpperCase() + titulo.slice(1);
+            document.querySelector('.fc-toolbar-title').textContent = capitalizado;
         }
     });
 
