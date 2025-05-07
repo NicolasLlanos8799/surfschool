@@ -4,10 +4,6 @@
 // registrar pagos, y listar pagos registrados con detalle por modal.
 // =========================================================
 
-document.addEventListener("DOMContentLoaded", function () {
-    cargarPagos();
-});
-
 function cargarPagos() {
     const contenedor = document.getElementById("seccionPagos") || document.getElementById("pagos");
 

@@ -498,28 +498,33 @@
         let calendarInstancia = null;
 
         function mostrarSeccion(seccion) {
-            document.querySelectorAll('.seccion').forEach(div => div.style.display = 'none');
-            const target = document.getElementById(seccion);
-            target.style.display = 'block';
+    console.log('Mostrando sección:', seccion);
+    document.querySelectorAll('.seccion').forEach(div => div.style.display = 'none');
+    const target = document.getElementById(seccion);
+    if (target) {
+        target.style.display = 'block';
+    }
 
-            if (seccion === 'clases') {
-                if (!calendarInstancia) {
-                    setTimeout(() => {
-                        calendarInstancia = inicializarCalendario();
-                    }, 10);
-                } else {
-                    setTimeout(() => {
-                        calendarInstancia.updateSize();
-                    }, 10);
-                }
-            }
-
-            if (seccion === 'pagos') {
-                cargarPagos(); // 🟢 Solo se llama cuando se muestra esta sección
-            }
+    if (seccion === 'clases') {
+        if (!calendarInstancia) {
+            setTimeout(() => {
+                calendarInstancia = inicializarCalendario();
+            }, 10);
+        } else {
+            setTimeout(() => {
+                calendarInstancia.updateSize();
+            }, 10);
         }
+    }
+
+    if (seccion === 'pagos') {
+        cargarPagos();
+    }
+}
+
 
     </script>
+  
 
     <!-- jQuery (debe ir antes que DataTables y tus scripts) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
