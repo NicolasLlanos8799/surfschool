@@ -8,7 +8,7 @@ function inicializarCalendario() {
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'es',
-        initialView: 'timeGridWeek',
+        initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
